@@ -6,7 +6,7 @@ sub_category:
   id: V2.3
   name: Code Review and Analysis
 description: |-
-  Verify code review policy to ensure that commits requires a security code review. 
+  Verify code review policy to ensure that commits requires a security code review.
   - Consider cases where reviews by more than 1 person is required.
 level: 3
 mappings:
