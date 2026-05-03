@@ -1,0 +1,25 @@
+id: V2.4.1
+category:
+  id: V2
+  name: Develop
+sub_category:
+  id: V2.4
+  name: Perform Security Checks
+description: |-
+  Verify first party code security tool conducting monthly security scans on production repositories
+level: 2
+mappings:
+  nist_800_53:
+    items:
+      - RA-5
+  owasp_cicd:
+    items:
+      - CICD-SEC-1
+  cwe:
+    items:
+      - id: CWE-1069
+        description: Empty Exception Block
+      - id: CWE-1041
+        description: Use of Redundant Code - Security scanning
+metadata:
+  status: active

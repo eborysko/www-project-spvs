@@ -1,0 +1,25 @@
+id: V5.5.2
+category:
+  id: V5
+  name: Operate
+sub_category:
+  id: V5.5
+  name: Incident Response & Recovery
+description: |-
+  Verify that incident response plans are tested regularly to ensure effectiveness
+level: 3
+mappings:
+  nist_800_53:
+    items:
+      - IR-3
+  owasp_cicd:
+    items:
+      - CICD-SEC-10
+  cwe:
+    items:
+      - id: CWE-390
+        description: Detection of Error Condition Without Action
+      - id: CWE-778
+        description: Insufficient Logging - Incident response testing
+metadata:
+  status: active

@@ -1,0 +1,25 @@
+id: V5.5.3
+category:
+  id: V5
+  name: Operate
+sub_category:
+  id: V5.5
+  name: Incident Response & Recovery
+description: |-
+  Verify that recovery procedures are tested and effective in minimizing downtime for pipelines
+level: 3
+mappings:
+  nist_800_53:
+    items:
+      - CP-2
+  owasp_cicd:
+    items:
+      - CICD-SEC-4
+  cwe:
+    items:
+      - id: CWE-390
+        description: Detection of Error Condition Without Action
+      - id: CWE-636
+        description: Not Failing Securely - Recovery procedures
+metadata:
+  status: active

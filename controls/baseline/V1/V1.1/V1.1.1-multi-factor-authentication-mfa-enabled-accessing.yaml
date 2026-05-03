@@ -1,0 +1,26 @@
+id: V1.1.1
+category:
+  id: V1
+  name: Plan
+sub_category:
+  id: V1.1
+  name: Identity and Access Management
+description: |-
+  Verify that Multi-Factor Authentication (MFA) is enabled for accessing developer laptops and critical systems
+level: 2
+mappings:
+  nist_800_53:
+    items:
+      - IA-2(1,2,12)
+      - IA-5
+  owasp_cicd:
+    items:
+      - CICD-SEC-2
+  cwe:
+    items:
+      - id: CWE-308
+        description: Use of Single-Factor Authentication
+      - id: CWE-287
+        description: Improper Authentication - Weak authentication mechanisms
+metadata:
+  status: active

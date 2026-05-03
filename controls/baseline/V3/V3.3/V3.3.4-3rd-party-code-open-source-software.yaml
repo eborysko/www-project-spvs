@@ -1,0 +1,25 @@
+id: V3.3.4
+category:
+  id: V3
+  name: Integrate (CI*)
+sub_category:
+  id: V3.3
+  name: Continuous Security Checks
+description: |-
+  Verify 3rd party code/Open Source Software security tool conducting monthly scans on production repositories
+level: 1
+mappings:
+  nist_800_53:
+    items:
+      - SA-11
+  owasp_cicd:
+    items:
+      - CICD-SEC-8
+  cwe:
+    items:
+      - id: CWE-1069
+        description: Empty Exception Block
+      - id: CWE-1041
+        description: Use of Redundant Code - IaC security enforcement
+metadata:
+  status: active

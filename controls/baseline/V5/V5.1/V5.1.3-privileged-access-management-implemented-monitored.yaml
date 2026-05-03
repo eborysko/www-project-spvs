@@ -1,0 +1,25 @@
+id: V5.1.3
+category:
+  id: V5
+  name: Operate
+sub_category:
+  id: V5.1
+  name: Access Audit
+description: |-
+  Verify that privileged access management is implemented and monitored
+level: 2
+mappings:
+  nist_800_53:
+    items:
+      - AC-6
+  owasp_cicd:
+    items:
+      - CICD-SEC-10
+  cwe:
+    items:
+      - id: CWE-269
+        description: Improper Privilege Management
+      - id: CWE-284
+        description: Improper Access Control - Privileged access control
+metadata:
+  status: active

@@ -1,0 +1,25 @@
+id: V3.3.11
+category:
+  id: V3
+  name: Integrate (CI*)
+sub_category:
+  id: V3.3
+  name: Continuous Security Checks
+description: |-
+  Verify security Infrastructure as Code (IaC) tool is on the latest version
+level: 1
+mappings:
+  nist_800_53:
+    items:
+      - SI-2
+  owasp_cicd:
+    items:
+      - CICD-SEC-7
+  cwe:
+    items:
+      - id: CWE-798
+        description: Use of Hard-coded Credentials
+      - id: CWE-312
+        description: Cleartext Storage of Sensitive Information - Secrets detection
+metadata:
+  status: active

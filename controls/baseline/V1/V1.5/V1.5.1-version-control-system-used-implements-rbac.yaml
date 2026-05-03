@@ -1,0 +1,27 @@
+id: V1.5.1
+category:
+  id: V1
+  name: Plan
+sub_category:
+  id: V1.5
+  name: Source Code Management Hardening
+description: |-
+  Verify a Version Control System is used that implements RBAC
+level: 1
+mappings:
+  nist_800_53:
+    items:
+      - AC-2
+      - AC-3
+      - AC-6
+  owasp_cicd:
+    items:
+      - CICD-SEC-1
+  cwe:
+    items:
+      - id: CWE-284
+        description: Improper Access Control
+      - id: CWE-291
+        description: Reliance on IP Address for Authentication - Lack of source code access controls
+metadata:
+  status: active

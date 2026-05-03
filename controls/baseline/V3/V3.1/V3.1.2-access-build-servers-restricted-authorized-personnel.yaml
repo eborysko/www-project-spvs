@@ -1,0 +1,25 @@
+id: V3.1.2
+category:
+  id: V3
+  name: Integrate (CI*)
+sub_category:
+  id: V3.1
+  name: Security of Pipeline Environment
+description: |-
+  Verify that access to build servers is restricted to authorized personnel only
+level: 2
+mappings:
+  nist_800_53:
+    items:
+      - AC-6
+  owasp_cicd:
+    items:
+      - CICD-SEC-10
+  cwe:
+    items:
+      - id: CWE-284
+        description: Improper Access Control
+      - id: CWE-269
+        description: Improper Privilege Management - Build server access control
+metadata:
+  status: active

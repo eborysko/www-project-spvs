@@ -1,0 +1,25 @@
+id: V3.1.3
+category:
+  id: V3
+  name: Integrate (CI*)
+sub_category:
+  id: V3.1
+  name: Security of Pipeline Environment
+description: |-
+  Verify that build servers are monitored for unauthorized access attempts
+level: 2
+mappings:
+  nist_800_53:
+    items:
+      - SI-4
+  owasp_cicd:
+    items:
+      - CICD-SEC-2
+  cwe:
+    items:
+      - id: CWE-778
+        description: Insufficient Logging
+      - id: CWE-223
+        description: Omission of Security-relevant Information - Build server monitoring
+metadata:
+  status: active

@@ -1,0 +1,23 @@
+id: V3.3.2
+category:
+  id: V3
+  name: Integrate (CI*)
+sub_category:
+  id: V3.3
+  name: Continuous Security Checks
+description: |-
+  Verify first party code security tool is on the latest version
+level: 1
+mappings:
+  nist_800_53:
+    items:
+      - AC-6
+  owasp_cicd:
+    items:
+      - CICD-SEC-7
+  cwe:
+    items:
+      - id: CWE-1104
+        description: Use of Unmaintained Third Party Components - IaC tool maintenance
+metadata:
+  status: active

@@ -1,0 +1,25 @@
+id: V4.3.6
+category:
+  id: V4
+  name: Release (CD*)
+sub_category:
+  id: V4.3
+  name: Secure Deployment Practices
+description: |-
+  Verify that deployment scripts include checks for unauthorized changes before execution
+level: 2
+mappings:
+  nist_800_53:
+    items:
+      - CM-6
+  owasp_cicd:
+    items:
+      - CICD-SEC-7
+  cwe:
+    items:
+      - id: CWE-345
+        description: Insufficient Verification of Data Authenticity
+      - id: CWE-354
+        description: Improper Validation of Integrity Check Value - Deployment integrity
+metadata:
+  status: active

@@ -1,0 +1,25 @@
+id: V2.7.2
+category:
+  id: V2
+  name: Develop
+sub_category:
+  id: V2.7
+  name: Unit Testing
+description: |-
+  Verify that unit tests are automated and run on every code change
+level: 2
+mappings:
+  nist_800_53:
+    items:
+      - SA-15
+  owasp_cicd:
+    items:
+      - CICD-SEC-4
+  cwe:
+    items:
+      - id: CWE-358
+        description: Improperly Implemented Security Check
+      - id: CWE-1041
+        description: Use of Redundant Code - Automated security testing
+metadata:
+  status: active

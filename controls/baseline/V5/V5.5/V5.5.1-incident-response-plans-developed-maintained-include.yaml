@@ -1,0 +1,25 @@
+id: V5.5.1
+category:
+  id: V5
+  name: Operate
+sub_category:
+  id: V5.5
+  name: Incident Response & Recovery
+description: |-
+  Verify that incident response plans are developed, maintained, and include procedures specific to pipeline security incidents.
+level: 2
+mappings:
+  nist_800_53:
+    items:
+      - IR-8
+  owasp_cicd:
+    items:
+      - CICD-SEC-10
+  cwe:
+    items:
+      - id: CWE-390
+        description: Detection of Error Condition Without Action
+      - id: CWE-778
+        description: Insufficient Logging - Incident response planning
+metadata:
+  status: active

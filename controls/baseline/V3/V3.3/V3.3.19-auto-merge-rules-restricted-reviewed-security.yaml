@@ -1,0 +1,25 @@
+id: V3.3.19
+category:
+  id: V3
+  name: Integrate (CI*)
+sub_category:
+  id: V3.3
+  name: Continuous Security Checks
+description: |-
+  Verify that auto-merge rules are restricted and reviewed for security implications
+level: 3
+mappings:
+  nist_800_53:
+    items:
+      - AC-6
+  owasp_cicd:
+    items:
+      - CICD-SEC-1
+  cwe:
+    items:
+      - id: CWE-284
+        description: Improper Access Control
+      - id: CWE-732
+        description: Incorrect Permission Assignment for Critical Resource - Merge control
+metadata:
+  status: active

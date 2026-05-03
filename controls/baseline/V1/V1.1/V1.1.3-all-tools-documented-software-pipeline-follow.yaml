@@ -1,0 +1,23 @@
+id: V1.1.3
+category:
+  id: V1
+  name: Plan
+sub_category:
+  id: V1.1
+  name: Identity and Access Management
+description: |-
+  Verify all tools in documented software pipeline follow access permission as it relates to principle of least privilege
+level: 3
+mappings:
+  nist_800_53:
+    items:
+      - AC-6
+  owasp_cicd:
+    items:
+      - CICD-SEC-2
+  cwe:
+    items:
+      - id: CWE-250
+        description: Execution with Unnecessary Privileges - Excessive permissions
+metadata:
+  status: active

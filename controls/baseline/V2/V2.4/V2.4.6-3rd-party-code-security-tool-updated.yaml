@@ -1,0 +1,23 @@
+id: V2.4.6
+category:
+  id: V2
+  name: Develop
+sub_category:
+  id: V2.4
+  name: Perform Security Checks
+description: |-
+  Verify 3rd party code security tool is updated at least monthly when scanning
+level: 2
+mappings:
+  nist_800_53:
+    items:
+      - CM-7
+  owasp_cicd:
+    items:
+      - CICD-SEC-8
+  cwe:
+    items:
+      - id: CWE-1104
+        description: Use of Unmaintained Third Party Components - Third party tool updates
+metadata:
+  status: active

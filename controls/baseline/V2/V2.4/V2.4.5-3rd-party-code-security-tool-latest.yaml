@@ -1,0 +1,23 @@
+id: V2.4.5
+category:
+  id: V2
+  name: Develop
+sub_category:
+  id: V2.4
+  name: Perform Security Checks
+description: |-
+  Verify 3rd party code security tool is on the latest version
+level: 2
+mappings:
+  nist_800_53:
+    items:
+      - SA-15
+  owasp_cicd:
+    items:
+      - CICD-SEC-8
+  cwe:
+    items:
+      - id: CWE-1104
+        description: Use of Unmaintained Third Party Components - Third party tool maintenance
+metadata:
+  status: active

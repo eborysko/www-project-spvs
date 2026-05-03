@@ -1,0 +1,25 @@
+id: V2.6.2
+category:
+  id: V2
+  name: Develop
+sub_category:
+  id: V2.6
+  name: 3rd Party library Audit
+description: |-
+  Verify that dependency versions are pinned to avoid dependency confusion attacks
+level: 3
+mappings:
+  nist_800_53:
+    items:
+      - SA-15
+  owasp_cicd:
+    items:
+      - CICD-SEC-3
+  cwe:
+    items:
+      - id: CWE-1104
+        description: Use of Unmaintained Third Party Components
+      - id: CWE-829
+        description: Inclusion of Functionality from Untrusted Control Sphere - Dependency pinning
+metadata:
+  status: active

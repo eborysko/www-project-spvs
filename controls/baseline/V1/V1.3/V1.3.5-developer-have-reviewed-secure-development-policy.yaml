@@ -1,0 +1,23 @@
+id: V1.3.5
+category:
+  id: V1
+  name: Plan
+sub_category:
+  id: V1.3
+  name: Security Requirements and Risk Assessment
+description: |-
+  Verify developer have reviewed Secure Development policy, specifically as it pertains to OWASP Top 10 pipeline Security Risks
+level: 1
+mappings:
+  nist_800_53:
+    items:
+      - AT-2
+  owasp_cicd:
+    items:
+      - CICD-SEC-7
+  cwe:
+    items:
+      - id: CWE-756
+        description: Missing Custom Error Page - Inadequate security documentation and guidance
+metadata:
+  status: active

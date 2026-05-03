@@ -1,0 +1,24 @@
+id: V1.5.3
+category:
+  id: V1
+  name: Plan
+sub_category:
+  id: V1.5
+  name: Source Code Management Hardening
+description: |-
+  Verify Version Control System enforces branch schema to help with tracking vulnerability remediation
+level: 3
+mappings:
+  nist_800_53:
+    items:
+      - CM-3
+      - RA-5
+  owasp_cicd:
+    items:
+      - CICD-SEC-1
+  cwe:
+    items:
+      - id: CWE-284
+        description: Improper Access Control - Branch protection and workflow enforcement
+metadata:
+  status: active

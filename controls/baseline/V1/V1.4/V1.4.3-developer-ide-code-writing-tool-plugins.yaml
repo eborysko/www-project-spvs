@@ -1,0 +1,23 @@
+id: V1.4.3
+category:
+  id: V1
+  name: Plan
+sub_category:
+  id: V1.4
+  name: Developer Tool Operation
+description: |-
+  Verify developer IDE/code writing tool plugins are routinely updated
+level: 1
+mappings:
+  nist_800_53:
+    items:
+      - CM-7(6)
+  owasp_cicd:
+    items:
+      - CICD-SEC-4
+  cwe:
+    items:
+      - id: CWE-1104
+        description: Use of Unmaintained Third Party Components - Outdated development plugins
+metadata:
+  status: active

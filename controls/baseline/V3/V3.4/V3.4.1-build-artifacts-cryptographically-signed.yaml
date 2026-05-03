@@ -1,0 +1,25 @@
+id: V3.4.1
+category:
+  id: V3
+  name: Integrate (CI*)
+sub_category:
+  id: V3.4
+  name: Integrity of Artifacts
+description: |-
+  Verify that build artifacts are cryptographically signed
+level: 3
+mappings:
+  nist_800_53:
+    items:
+      - SC-12
+  owasp_cicd:
+    items:
+      - CICD-SEC-9
+  cwe:
+    items:
+      - id: CWE-347
+        description: Improper Verification of Cryptographic Signature
+      - id: CWE-353
+        description: Missing Support for Integrity Check - Artifact signing
+metadata:
+  status: active

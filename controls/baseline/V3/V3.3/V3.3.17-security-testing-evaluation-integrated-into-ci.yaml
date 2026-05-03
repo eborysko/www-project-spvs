@@ -1,0 +1,25 @@
+id: V3.3.17
+category:
+  id: V3
+  name: Integrate (CI*)
+sub_category:
+  id: V3.3
+  name: Continuous Security Checks
+description: |-
+  Verify that security testing and evaluation are integrated into the CI process
+level: 2
+mappings:
+  nist_800_53:
+    items:
+      - SA-11
+  owasp_cicd:
+    items:
+      - CICD-SEC-1
+  cwe:
+    items:
+      - id: CWE-358
+        description: Improperly Implemented Security Check
+      - id: CWE-1041
+        description: Use of Redundant Code - CI security testing
+metadata:
+  status: active
