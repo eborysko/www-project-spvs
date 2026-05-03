@@ -1,0 +1,95 @@
+[project]
+name = "spvs-build"
+version = "0.1.0"
+description = "Build tooling for SPVS YAML source-of-truth"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "ruamel.yaml==0.18.6",
+    "jsonschema==4.21.1",
+    "click==8.1.7",
+]
+
+[project.scripts]
+spvs-build = "spvs_build.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["spvs_build"]
+
+# ---------------------------------------------------------------------------
+# Dev dependencies (PEP 735) — uv installs with `uv sync --dev`
+# All versions pinned exactly; cool-down gate below blocks newer-than-7-day pkgs
+# ---------------------------------------------------------------------------
+[dependency-groups]
+dev = [
+    "pytest==8.0.2",
+    "pytest-cov==4.1.0",
+    "ruff==0.3.4",
+    "mypy==1.9.0",
+    "yamllint==1.35.1",
+    "pre-commit==3.6.2",
+]
+
+# ---------------------------------------------------------------------------
+# uv — package manager settings
+# `exclude-newer` is the dependency cool-down gate: blocks any package version
+# published in the last 7 days. Defends against compromised-package-just-published
+# attacks (TeamPCP, Axios npm compromise patterns) without active per-update vetting.
+# ---------------------------------------------------------------------------
+[tool.uv]
+exclude-newer = "7 days"
+
+# ---------------------------------------------------------------------------
+# Ruff — linting and formatting (security rules enabled via S = flake8-bandit)
+# ---------------------------------------------------------------------------
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+src = ["spvs_build"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "UP",   # pyupgrade
+    "S",    # flake8-bandit (security)
+    "T20",  # flake8-print
+]
+ignore = [
+    "S101",  # allow assert in tests
+]
+
+[tool.ruff.lint.per-file-ignores]
+"spvs_build/tests/**/*.py" = ["S", "T20"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+# ---------------------------------------------------------------------------
+# Mypy — strict static type checking
+# ---------------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["spvs_build"]
+pretty = true
+
+[[tool.mypy.overrides]]
+module = ["ruamel.*"]
+ignore_missing_imports = true
+
+# ---------------------------------------------------------------------------
+# Pytest with coverage gate
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["spvs_build/tests"]
+addopts = "--cov=spvs_build --cov-report=term-missing --cov-fail-under=80"
