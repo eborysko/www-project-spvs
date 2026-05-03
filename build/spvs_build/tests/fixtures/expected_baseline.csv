@@ -1,0 +1,2 @@
+category_id,category_name,sub-category_id,sub-category_name,req_id,req_description,level 1,level 2,level 3,NIST,OWASP_CICD_Risk,cwe_mapping,cwe_description
+V1,Plan,V1.1,Identity and Access Management,V1.1.1,Verify that Multi-Factor Authentication (MFA) is enabled for accessing developer laptops and critical systems.,,X,,"NIST 800-53: IA-2(1), IA-2(2), IA-2(12), IA-5",CICD-SEC-2,CWE-308;CWE-287,Use of Single-Factor Authentication;Improper Authentication - Weak authentication mechanisms
