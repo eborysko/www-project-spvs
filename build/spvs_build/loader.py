@@ -106,7 +106,11 @@ def _build_control(raw: dict[str, object], path: Path) -> Control:
 def _build_mapping_item(raw: object) -> MappingItem:
     if isinstance(raw, str):
         return MappingItem(id=raw)
-    assert isinstance(raw, dict)
+    if not isinstance(raw, dict):
+        raise TypeError(
+            f"mapping item must be a string or a dict with an 'id' field, "
+            f"got {type(raw).__name__}: {raw!r}"
+        )
     return MappingItem(id=raw["id"], description=raw.get("description"), note=raw.get("note"))
 
 

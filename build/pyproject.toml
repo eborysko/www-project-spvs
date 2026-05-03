@@ -37,12 +37,24 @@ dev = [
 
 # ---------------------------------------------------------------------------
 # uv — package manager settings
+#
 # `exclude-newer` is the dependency cool-down gate: blocks any package version
 # published in the last 7 days. Defends against compromised-package-just-published
 # attacks (TeamPCP, Axios npm compromise patterns) without active per-update vetting.
+#
+# `[[tool.uv.index]]` explicitly pins the resolver to public PyPI. This is a
+# project-level override that takes precedence over any user-level uv.toml
+# configuration (e.g., a private organizational PyPI proxy). Ensures the
+# committed `uv.lock` resolves identically for any external contributor and
+# in CI.
 # ---------------------------------------------------------------------------
 [tool.uv]
 exclude-newer = "7 days"
+
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/simple/"
+default = true
 
 # ---------------------------------------------------------------------------
 # Ruff — linting and formatting (security rules enabled via S = flake8-bandit)
@@ -64,11 +76,8 @@ select = [
     "S",    # flake8-bandit (security)
     "T20",  # flake8-print
 ]
-ignore = [
-    "S101",  # allow assert in tests
-]
-
 [tool.ruff.lint.per-file-ignores]
+# Tests: allow asserts (S101), prints (T20), and other security relaxations
 "spvs_build/tests/**/*.py" = ["S", "T20"]
 
 [tool.ruff.format]

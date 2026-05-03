@@ -8,6 +8,11 @@
         pre-commit-all validate-baseline build-baseline check-baseline \
         migrate-baseline yamllint security clean
 
+# Bypass any user-level uv config (e.g., private PyPI proxies) so the
+# committed uv.lock and pyproject.toml are the only inputs to dependency
+# resolution. Ensures reproducibility for external contributors and CI.
+export UV_NO_CONFIG := 1
+
 PYTHON  := uv run python
 PYTEST  := uv run pytest
 RUFF    := uv run ruff
