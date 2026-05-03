@@ -173,11 +173,37 @@ def _extract_change_tags(description: str) -> tuple[str, list]:  # type: ignore
 
 
 def _parse_nist(raw: str) -> list[str]:
+    """Split a NIST 800-53 control list on top-level commas only.
+
+    NIST IDs can contain parenthesized comma-separated enhancements like
+    `IA-2(1,2,12)` — those internal commas must NOT be treated as separators.
+    """
     raw = raw.strip()
     prefix = "NIST 800-53:"
     if raw.startswith(prefix):
         raw = raw[len(prefix) :].strip()
-    return [s.strip() for s in raw.split(",") if s.strip()]
+
+    items: list[str] = []
+    current: list[str] = []
+    depth = 0
+    for ch in raw:
+        if ch == "(":
+            depth += 1
+            current.append(ch)
+        elif ch == ")":
+            depth = max(0, depth - 1)
+            current.append(ch)
+        elif ch == "," and depth == 0:
+            piece = "".join(current).strip()
+            if piece:
+                items.append(piece)
+            current = []
+        else:
+            current.append(ch)
+    piece = "".join(current).strip()
+    if piece:
+        items.append(piece)
+    return items
 
 
 def _split(raw: str, sep: str) -> list[str]:

@@ -10,7 +10,7 @@ from jsonschema import Draft202012Validator
 
 from spvs_build.model import Control, Metadata
 
-SLUG_RE = re.compile(r"^[a-z][a-z0-9-]{0,59}$")
+SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,59}$")
 ID_RE = re.compile(r"^V\d+\.\d+\.\d+$")
 
 
