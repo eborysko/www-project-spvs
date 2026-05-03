@@ -1,0 +1,73 @@
+name: build-controls
+
+on:
+  pull_request:
+    paths:
+      - 'controls/**'
+      - 'schema/**'
+      - 'build/**'
+      - '1.5/OWASP_SPVS_1.0_-en_Requirements.csv'
+      - '.github/workflows/build-controls.yml'
+      - '.yamllint.yaml'
+      - '.pre-commit-config.yaml'
+  push:
+    branches: [main]
+
+jobs:
+  validate-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+
+      - name: Install build dependencies (frozen lockfile)
+        working-directory: build
+        run: uv sync --dev --frozen
+
+      - name: Ruff lint (security rules included)
+        working-directory: build
+        run: uv run ruff check spvs_build/
+
+      - name: Ruff format check
+        working-directory: build
+        run: uv run ruff format --check spvs_build/
+
+      - name: Mypy strict type check
+        working-directory: build
+        run: uv run mypy spvs_build/
+
+      - name: Pytest with coverage gate (80%)
+        working-directory: build
+        run: uv run pytest
+
+      - name: Validate baseline supplement
+        working-directory: build
+        run: >
+          uv run python -m spvs_build validate
+          --supplement ../controls/baseline
+          --schema ../schema/control.schema.json
+
+      - name: Drift check (regenerate baseline CSV and diff)
+        working-directory: build
+        run: >
+          uv run python -m spvs_build check
+          --supplement ../controls/baseline
+          --schema ../schema/control.schema.json
+          --renderer csv-baseline
+          --out ../1.5/OWASP_SPVS_1.0_-en_Requirements.csv
+
+      - name: yamllint controls
+        working-directory: build
+        run: uv run yamllint -c ../.yamllint.yaml ../controls
+
+      - name: Gitleaks secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+        continue-on-error: false
