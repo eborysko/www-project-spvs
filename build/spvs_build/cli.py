@@ -102,7 +102,7 @@ def check(supplement: Path, schema: Path, renderer: str, out: Path) -> None:
 @click.option("--out", type=click.Path(path_type=Path), required=True)
 def migrate(csv_path: Path, out: Path) -> None:
     """One-shot conversion of a baseline CSV into per-control YAML files."""
-    from spvs_build.migrate import migrate_baseline  # type: ignore[import-untyped]
+    from spvs_build.migrate import migrate_baseline
 
     out.mkdir(parents=True, exist_ok=True)
     errors = migrate_baseline(csv_path, out)
