@@ -14,16 +14,53 @@ Thank you for your interest in contributing to SPVS. We welcome all contribution
 
 1. Fork this repository and create a branch named descriptively (e.g., `add-sbom-verification-control`, `fix-v1.1.3-nist-mapping`).
 
-2. Add your proposed control(s) to `1.0/OWASP_SPVS_1.0_-en_Requirements.csv`. Keep the column order and formatting consistent with existing rows. If you're unsure of the category, pick the closest one and note it in your PR.
+2. Add your proposed control(s) as a new YAML file under
+   `controls/baseline/V<cat>/V<sub>/V<id>-<short-slug>.yaml`. Use an
+   adjacent control as a template. The slug is a short kebab-case
+   description, max 60 characters, action-first when possible
+   (e.g. `verify-mfa-enabled`).
 
-3. Open a pull request against the `main` branch. For new controls, your description should address:
+   The CSV at `1.5/OWASP_SPVS_1.0_-en_Requirements.csv` is **generated
+   from the YAML** by the build pipeline. Do not edit the CSV directly —
+   the CI drift check will reject any PR where the committed CSV does
+   not match what the YAML produces.
+
+   For new controls, the YAML's `description` field is the verification
+   statement, `level` is 1 / 2 / 3, and `mappings` carries the
+   compliance framework references. See [`build/README.md`](build/README.md)
+   for the full schema and toolchain documentation.
+
+3. Regenerate the CSV before pushing:
+
+   ```sh
+   cd build && make build-baseline
+   ```
+
+   Then `git add 1.5/OWASP_SPVS_1.0_-en_Requirements.csv` alongside your
+   YAML changes.
+
+4. (Recommended) Install the local pre-commit hooks for fast feedback:
+
+   ```sh
+   cd build && make install
+   ```
+
+   The hooks run schema validation, regenerate the CSV, run yamllint,
+   ruff/mypy on the build toolchain, gitleaks for secrets, and validate
+   Conventional Commits format on the commit message. CI runs the same
+   checks regardless — pre-commit is opt-in but catches issues before
+   you push.
+
+5. Open a pull request against the `main` branch. CI runs the full
+   build/validate/drift-check sequence; merging requires a green check.
+   For new controls, your PR description should address:
    - What the control verifies
    - Which pipeline phase it belongs to and why
    - The threat or risk it addresses (OWASP CICD Top 10 reference preferred)
    - Suggested level (1 = baseline, 2 = standard, 3 = advanced) with rationale
    - NIST 800-53, OWASP CICD Risk, and CWE mappings (best effort is fine)
 
-4. If you're proposing something that doesn't fit cleanly into an existing category, say so in the PR. That's useful signal for the maintainers.
+6. If you're proposing something that doesn't fit cleanly into an existing category, say so in the PR. That's useful signal for the maintainers.
 
 ### Numbering Rules
 
