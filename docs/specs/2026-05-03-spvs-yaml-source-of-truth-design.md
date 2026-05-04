@@ -336,8 +336,11 @@ for a security-focused open standard:
   vetting on every dependency update.
 - **Lockfile drift gate** — CI runs `uv sync --frozen` which fails if
   `uv.lock` does not match `pyproject.toml`. No undocumented dep changes.
-- **Secrets scanning** — `gitleaks` runs in pre-commit and CI; rejects
-  commits containing API keys, tokens, or private key material.
+- **Secrets scanning** — three layers: GitHub native Secret Scanning runs
+  continuously server-side on every push and scans full history (free for
+  public repos); GitHub Push Protection blocks pushes that introduce secrets
+  before they enter the repo (enabled in repo settings); and a local
+  `gitleaks` pre-commit hook for fast developer-side feedback.
 - **Conventional commits enforcement** — `commit-msg` hook validates
   commit message format; produces clean changelog/release notes downstream.
 - **No-direct-commit-to-main** — pre-commit hook blocks direct commits to

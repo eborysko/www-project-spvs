@@ -18,12 +18,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
         with:
           fetch-depth: 0
 
       - name: Install uv
-        uses: astral-sh/setup-uv@8d55fbecc275b1c35dbe060458839f8d30439ccf  # v3
+        uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9  # v7
         with:
           version: "0.4.x"
 
@@ -67,9 +67,8 @@ jobs:
         working-directory: build
         run: uv run yamllint -c ../.yamllint.yaml ../controls
 
-      - name: Gitleaks secret scan
-        uses: gitleaks/gitleaks-action@dcedce43c6f43de0b836d1fe38946645c9c638dc  # v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
-        continue-on-error: false
+      # Secret scanning is handled by GitHub native Secret Scanning + Push
+      # Protection (configured at the repo level in Settings -> Code security).
+      # That runs server-side on every push, scans full history, and blocks at
+      # the push step rather than at CI. The local pre-commit gitleaks hook
+      # still runs developer-side as defense-in-depth.

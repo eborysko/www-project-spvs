@@ -144,7 +144,15 @@ This toolchain follows defence-in-depth practices:
 - **`uv.lock` committed** — reproducible installs across maintainers
 - **Cool-down gate** — `exclude-newer = "7 days"` blocks brand-new package versions
 - **Lockfile drift gate** — CI runs `uv sync --frozen`
-- **Secrets scanning** — gitleaks in pre-commit and CI
+- **Secrets scanning** — three layers:
+  - **GitHub Secret Scanning** runs continuously server-side on every push,
+    scans the full history, and surfaces alerts in the repo's Security tab.
+    Free for public repos, no setup required.
+  - **GitHub Push Protection** (must be enabled in repo Settings -> Code
+    security) blocks pushes that would introduce secrets *before* they enter
+    the repo. Stronger than CI-time blocking.
+  - **`gitleaks` pre-commit hook** runs developer-side as a fast local check.
+    Defense-in-depth — does not replace the GitHub-side controls.
 - **Security linting** — ruff's `S` (flake8-bandit) rules in CI and pre-commit
 - **Conventional Commits** — commit-msg hook validates format
 - **No-direct-commit-to-main** — pre-commit hook enforces PR flow
