@@ -1,0 +1,12 @@
+id: V3.4.3
+category:
+  id: V3
+  name: Integrate (CI*)
+sub_category:
+  id: V3.4
+  name: Integrity of Artifacts
+description: ""
+level: 1
+mappings: {}
+metadata:
+  status: deleted
