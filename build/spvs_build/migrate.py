@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -60,6 +61,10 @@ def migrate_baseline(csv_path: Path, out_dir: Path) -> list[MigrationError]:
 
     with csv_path.open("r", encoding="utf-8", newline="") as f:
         reader = csv.DictReader(f)
+        header_errors = _validate_headers(reader.fieldnames)
+        if header_errors:
+            errors.extend(header_errors)
+            return errors
         for row_num, row in enumerate(reader, start=2):
             cat_name = row.get("category_name") or row.get("catagory_name", "")
             sub_name = row.get("sub-category_name") or row.get("sub-catagory_name", "")
@@ -84,6 +89,40 @@ def migrate_baseline(csv_path: Path, out_dir: Path) -> list[MigrationError]:
             with target.open("w", encoding="utf-8") as out:
                 yaml.dump(doc, out)
 
+    return errors
+
+
+def _validate_headers(fieldnames: Sequence[str] | None) -> list[MigrationError]:
+    """Verify the CSV has all columns the migration tool relies on.
+
+    Required (single name): req_id, req_description, category_id, sub-category_id.
+    Required (either spelling, to tolerate the historical typo):
+      category_name OR catagory_name
+      sub-category_name OR sub-catagory_name
+
+    Returns a list of MigrationError entries (csv_row=1, the header row) for
+    each missing requirement. Empty list means the header is acceptable.
+    """
+    errors: list[MigrationError] = []
+    if not fieldnames:
+        errors.append(MigrationError(1, "CSV has no header row"))
+        return errors
+
+    headers = set(fieldnames)
+    for required in ("req_id", "req_description", "category_id", "sub-category_id"):
+        if required not in headers:
+            errors.append(MigrationError(1, f"required header column missing: '{required}'"))
+    if "category_name" not in headers and "catagory_name" not in headers:
+        errors.append(
+            MigrationError(1, "required header missing: one of 'category_name' or 'catagory_name'")
+        )
+    if "sub-category_name" not in headers and "sub-catagory_name" not in headers:
+        errors.append(
+            MigrationError(
+                1,
+                "required header missing: one of 'sub-category_name' or 'sub-catagory_name'",
+            )
+        )
     return errors
 
 

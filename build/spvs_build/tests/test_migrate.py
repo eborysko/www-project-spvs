@@ -113,6 +113,55 @@ def test_migrate_fails_loudly_on_descriptions_without_ids(tmp_path: Path) -> Non
     assert any(isinstance(e, MigrationError) and "cwe" in e.message.lower() for e in errors)
 
 
+def test_migrate_fails_loudly_on_missing_required_header(tmp_path: Path) -> None:
+    """Regression: missing required header columns must surface as
+    MigrationError with csv_row=1 before any data row processing,
+    rather than KeyError-ing mid-iteration on row['req_id']."""
+    csv = tmp_path / "bad.csv"
+    # Missing req_id, req_description, category_id, sub-category_id, and both
+    # name columns. Has only level columns and mappings.
+    csv.write_text(
+        "level 1,level 2,level 3,NIST,OWASP_CICD_Risk,cwe_mapping,cwe_description\n"
+        "X,,,N,O,CWE-1,The CWE\n"
+    )
+    out = tmp_path / "out"
+    out.mkdir()
+    errors = migrate_baseline(csv, out)
+    assert errors, "expected header validation errors"
+    assert all(e.csv_row == 1 for e in errors), "header errors must point to row 1"
+    messages = " ".join(e.message for e in errors)
+    assert "req_id" in messages
+    assert "category_id" in messages
+
+
+def test_migrate_accepts_old_or_new_category_header_spelling(tmp_path: Path) -> None:
+    """Both 'category_name' (corrected) and 'catagory_name' (historical typo)
+    are accepted; either alone passes header validation."""
+    csv_old = tmp_path / "old.csv"
+    csv_old.write_text(
+        "category_id,catagory_name,sub-category_id,sub-catagory_name,req_id,"
+        "req_description,level 1,level 2,level 3,NIST,OWASP_CICD_Risk,"
+        "cwe_mapping,cwe_description\n"
+        "V1,Plan,V1.1,IAM,V1.1.1,desc,X,,,N,O,CWE-1,The CWE\n"
+    )
+    out_old = tmp_path / "out_old"
+    out_old.mkdir()
+    errors_old = migrate_baseline(csv_old, out_old)
+    assert errors_old == []
+
+    csv_new = tmp_path / "new.csv"
+    csv_new.write_text(
+        "category_id,category_name,sub-category_id,sub-category_name,req_id,"
+        "req_description,level 1,level 2,level 3,NIST,OWASP_CICD_Risk,"
+        "cwe_mapping,cwe_description\n"
+        "V1,Plan,V1.1,IAM,V1.1.1,desc,X,,,N,O,CWE-1,The CWE\n"
+    )
+    out_new = tmp_path / "out_new"
+    out_new.mkdir()
+    errors_new = migrate_baseline(csv_new, out_new)
+    assert errors_new == []
+
+
 def test_derive_slug_collision_progresses_when_base_at_max_length(tmp_path: Path) -> None:
     """Regression: counter suffix must always change the slug, even when base is 60 chars.
 
