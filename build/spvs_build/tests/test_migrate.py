@@ -63,6 +63,24 @@ def test_migrate_fails_loudly_on_mismatched_cwe_lengths(tmp_path: Path) -> None:
     assert any(isinstance(e, MigrationError) and "cwe" in e.message.lower() for e in errors)
 
 
+def test_migrate_fails_loudly_on_descriptions_without_ids(tmp_path: Path) -> None:
+    """Regression: description-only rows must fail rather than silently
+    discarding the descriptions. The earlier check guarded only on non-empty
+    cwe_ids, so a row with cwe_descriptions but empty cwe_mapping would
+    silently lose data."""
+    csv = tmp_path / "bad.csv"
+    csv.write_text(
+        "category_id,catagory_name,sub-category_id,sub-catagory_name,req_id,"
+        "req_description,level 1,level 2,level 3,NIST,OWASP_CICD_Risk,"
+        "cwe_mapping,cwe_description\n"
+        "V1,Plan,V1.1,IAM,V1.1.1,desc,,X,,N,O,,Description without an id\n"
+    )
+    out = tmp_path / "out"
+    out.mkdir()
+    errors = migrate_baseline(csv, out)
+    assert any(isinstance(e, MigrationError) and "cwe" in e.message.lower() for e in errors)
+
+
 def test_derive_slug_collision_progresses_when_base_at_max_length(tmp_path: Path) -> None:
     """Regression: counter suffix must always change the slug, even when base is 60 chars.
 

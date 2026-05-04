@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping as ABCMapping
 from dataclasses import dataclass
+from types import MappingProxyType
 from typing import Literal
 
 ChangeTagType = Literal[
@@ -74,10 +76,17 @@ class Control:
     sub_category: SubCategory
     description: str
     level: int  # 1, 2, or 3 — single value
-    # NOTE: Control.mappings is a dict for ergonomic by-framework lookup. The
-    # dataclass is frozen=True (no field reassignment), but the dict itself is
-    # mutable. Treat it as logically immutable; constructors should not retain
-    # references to the underlying dict after passing it in.
-    mappings: dict[str, Mapping]  # framework_name -> Mapping
+    # `mappings` is wrapped in MappingProxyType by __post_init__ for runtime
+    # read-only enforcement. The annotation uses the abc.Mapping protocol so
+    # callers see a read-only API; passing a regular dict in is fine — the
+    # constructor will copy + wrap it.
+    mappings: ABCMapping[str, Mapping]  # framework_name -> Mapping
     metadata: Metadata
     source_path: str | None = None  # set by loader for error reporting
+
+    def __post_init__(self) -> None:
+        # frozen=True prevents field reassignment but does not prevent mutation
+        # of a passed-in dict. Copy to detach from the caller's reference, then
+        # wrap in MappingProxyType so .mappings is read-only at runtime.
+        if not isinstance(self.mappings, MappingProxyType):
+            object.__setattr__(self, "mappings", MappingProxyType(dict(self.mappings)))

@@ -98,7 +98,7 @@ def _build_doc(
 
     cwe_ids = _split(row.get("cwe_mapping", ""), ";")
     cwe_descs = _split(row.get("cwe_description", ""), ";")
-    if cwe_ids and len(cwe_ids) != len(cwe_descs):
+    if len(cwe_ids) != len(cwe_descs):
         errors.append(
             MigrationError(
                 row_num,
