@@ -81,6 +81,55 @@
         "moved_to": { "type": "string" },
         "owner": { "type": "string" }
       }
+    },
+    "details": {
+      "$comment": "Reserved future-state slot for long-form authoring content (PDF, MkDocs, AI-readable renderers). Optional; MVP CSV renderer ignores.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "long_description": { "type": "string" },
+        "rationale": { "type": "string" },
+        "implementation_guidance": { "type": "string" },
+        "examples": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "title": { "type": "string" },
+              "content": { "type": "string" }
+            },
+            "required": ["title", "content"]
+          }
+        }
+      }
+    },
+    "references": {
+      "$comment": "Reserved future-state slot for external citations / links. Optional; MVP CSV renderer ignores.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["title", "url"],
+        "properties": {
+          "title": { "type": "string", "minLength": 1 },
+          "url": { "type": "string", "minLength": 1 },
+          "type": {
+            "type": "string",
+            "enum": ["standard", "research", "tool", "blog", "rfc"]
+          }
+        }
+      }
+    },
+    "site": {
+      "$comment": "Reserved future-state slot for site-generator hints (MkDocs, Astro, etc.). Optional; MVP CSV renderer ignores.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "slug": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,59}$" },
+        "feature_image": { "type": "string" },
+        "category_order": { "type": "integer", "minimum": 0 }
+      }
     }
   },
   "allOf": [

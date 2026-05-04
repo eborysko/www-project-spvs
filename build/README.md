@@ -90,8 +90,17 @@ If `make pre-commit-all` is green, the equivalent of all the above passed.
 ## CI behaviour
 
 The GitHub Actions workflow at `.github/workflows/build-controls.yml`
-runs the same checks on every PR and on pushes to `main`. The job is
-named `validate-and-build` and is required for merge.
+runs core validation/build checks on every PR and on pushes to `main`:
+ruff (lint + format), mypy, pytest with coverage gate, schema +
+semantic validation of `controls/baseline/`, CSV drift check, and
+yamllint over `controls/`. The job is named `validate-and-build` and
+is required for merge.
+
+A few hooks are pre-commit-only (not enforced by the GitHub Actions
+job): the local `gitleaks` secret scan, Conventional Commits format
+on the commit message, and `no-commit-to-branch`. Server-side secret
+scanning is handled by GitHub native Secret Scanning + Push Protection
+(see Supply chain hardening below).
 
 CI runtime target: under 30 seconds cold install via `uv` plus all checks.
 
