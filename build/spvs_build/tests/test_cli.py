@@ -3,15 +3,23 @@
 import subprocess
 from pathlib import Path
 
+_CLI_TIMEOUT_SEC = 30
+
 
 def _run(*args: str, cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(  # noqa: S603 (test invocation, controlled args)
-        ["uv", "run", "python", "-m", "spvs_build", *args],
-        cwd=cwd,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    try:
+        return subprocess.run(  # noqa: S603 (test invocation, controlled args)
+            ["uv", "run", "python", "-m", "spvs_build", *args],
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=_CLI_TIMEOUT_SEC,
+        )
+    except subprocess.TimeoutExpired as e:
+        raise AssertionError(
+            f"CLI invocation hung past {_CLI_TIMEOUT_SEC}s: args={args!r} cwd={cwd!r}"
+        ) from e
 
 
 def test_cli_validate_succeeds_on_valid_supplement(

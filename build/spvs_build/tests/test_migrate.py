@@ -40,6 +40,7 @@ def test_migrate_pairs_cwe_ids_with_descriptions(tmp_path: Path, fixture_dir: Pa
 
     yaml = YAML(typ="safe")
     matched = list(out.rglob("V1.1.1-*.yaml"))
+    assert len(matched) == 1, f"expected exactly one V1.1.1 yaml, got {matched}"
     data = yaml.load(matched[0].read_text())
 
     cwe_items = data["mappings"]["cwe"]["items"]
