@@ -18,7 +18,9 @@ mappings:
       - CICD-SEC-4
   cwe:
     items:
-      - id: CWE-1104/937
+      - id: CWE-1104
+        description: Use of Unmaintained Third Party Components - Failure to maintain system security
+      - id: CWE-937
         description: Use of Unmaintained Third Party Components - Failure to maintain system security
 metadata:
   status: active
