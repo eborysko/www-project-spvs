@@ -492,7 +492,7 @@ The drift-check job in CI proves this every time the PR is updated.
 
 | Risk | Mitigation |
 |---|---|
-| Slug collisions within a sub-category | Migration tool detects, falls back to `V<id>-<n-words>` then to `V<id>-<short-hash>`; reports all collisions for human review before commit |
+| Slug collisions within a sub-category | Migration tool detects collisions and appends an incremental numeric suffix (`-2`, `-3`, ...) to the colliding slug; if the slug exhausts the 60-char limit (extreme edge case), falls back to `control-<n>`. Slug derivation reserves space for the suffix each iteration so the loop always makes progress. All collisions are surfaced in the migrated YAML filenames for human review before commit. |
 | Existing CSV data quality bugs (mismatched CWE id/description counts) | Tool fails loudly with file/row references; data is fixed in CSV first, then migration re-run |
 | Lossy round-trip | Drift-check in CI catches this; PR cannot merge |
 | Reviewer fatigue on a 115-file PR | PR is reviewed primarily for the build/schema/CI portions; YAML files reviewed by spot-check + the byte-identical CSV check (which proves no semantic change) |
