@@ -2468,13 +2468,15 @@ jobs:
 
       - name: Validate baseline supplement
         working-directory: build
-        run: uv run python -m spvs_build validate
+        run: >
+          uv run python -m spvs_build validate
           --supplement ../controls/baseline
           --schema ../schema/control.schema.json
 
       - name: Drift check (regenerate baseline CSV and diff)
         working-directory: build
-        run: uv run python -m spvs_build check
+        run: >
+          uv run python -m spvs_build check
           --supplement ../controls/baseline
           --schema ../schema/control.schema.json
           --renderer csv-baseline
@@ -2487,9 +2489,8 @@ jobs:
       - name: Gitleaks secret scan
         uses: gitleaks/gitleaks-action@v2
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
-        with:
-          config-path: .gitleaks.toml
         continue-on-error: false
 ```
 
