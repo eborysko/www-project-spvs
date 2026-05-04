@@ -82,7 +82,7 @@ changes).
 
 ### Repository layout (additive — nothing existing moves in MVP)
 
-```
+```text
 controls/
   baseline/                          # 1.0 baseline supplement
     V1/V1.1/V1.1.1-verify-mfa-enabled.yaml
@@ -128,7 +128,7 @@ docs/specs/
 
 ### Build flow (MVP)
 
-```
+```text
 controls/baseline/**/*.yaml
         │
         ▼
@@ -357,7 +357,7 @@ for a security-focused open standard:
 
 ### CLI surface
 
-```
+```sh
 python -m spvs_build validate                  # schema + semantic validation only
 python -m spvs_build build                     # regenerate all CSV outputs
 python -m spvs_build build --supplement baseline   # one supplement only
@@ -428,7 +428,7 @@ Two consecutive `build` runs produce byte-identical CSVs. The CI drift check
 
 Example output:
 
-```
+```text
 controls/baseline/V1/V1.1/V1.1.1-verify-mfa-enabled.yaml:7
   E001 [schema] field `level` must be 1, 2, or 3 (got: "two")
 
@@ -518,7 +518,7 @@ If maintainers reject the model after merge, reverting is straightforward:
 
 ### Job: `validate-and-build`
 
-```
+```text
 1. Checkout (fetch-depth: 1)
 2. Install uv (single curl-based step, ~2s)
 3. cd build && uv sync --frozen          # verify lockfile + install deps
@@ -539,7 +539,7 @@ Drift errors block merge. Schema/semantic/referential errors block merge.
 When a contributor edits YAML but forgets to regenerate the CSV, the `check`
 step fails with a tailored message via GitHub Actions annotations:
 
-```
+```text
 1.5/OWASP_SPVS_1.0_-en_Requirements.csv:#L42
 ::error::CSV drift detected. The committed CSV does not match what your YAML
 would produce. Run this locally and commit the result:
