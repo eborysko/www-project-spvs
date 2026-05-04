@@ -51,6 +51,8 @@ def load_supplement(root: Path) -> tuple[list[Control], list[LoadError]]:
 
     if not root.exists():
         return controls, [LoadError(str(root), None, "E000", f"path does not exist: {root}")]
+    if not root.is_dir():
+        return controls, [LoadError(str(root), None, "E000", f"path is not a directory: {root}")]
 
     yaml_files = sorted(root.rglob("*.yaml"), key=_natural_sort_key)
 
@@ -68,10 +70,21 @@ def load_supplement(root: Path) -> tuple[list[Control], list[LoadError]]:
             errors.append(LoadError(str(path), None, "E002", f"could not read file: {e}"))
             continue
 
+        if not isinstance(raw, dict):
+            errors.append(
+                LoadError(
+                    str(path),
+                    None,
+                    "E003",
+                    f"document is not a YAML mapping (got {type(raw).__name__})",
+                )
+            )
+            continue
+
         try:
             control = _build_control(raw, path)
             controls.append(control)
-        except (KeyError, TypeError, ValueError) as e:
+        except (KeyError, TypeError, ValueError, AttributeError) as e:
             errors.append(LoadError(str(path), None, "E003", f"malformed control: {e}"))
 
     return controls, errors

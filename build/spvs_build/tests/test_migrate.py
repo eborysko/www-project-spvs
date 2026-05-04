@@ -60,3 +60,26 @@ def test_migrate_fails_loudly_on_mismatched_cwe_lengths(tmp_path: Path) -> None:
     out.mkdir()
     errors = migrate_baseline(csv, out)
     assert any(isinstance(e, MigrationError) and "cwe" in e.message.lower() for e in errors)
+
+
+def test_derive_slug_collision_progresses_when_base_at_max_length(tmp_path: Path) -> None:
+    """Regression: counter suffix must always change the slug, even when base is 60 chars.
+
+    Earlier `f"{base}-{counter}"[:60]` could truncate the suffix off the end
+    when base was already at the 60-char limit, causing an infinite loop on
+    collisions.
+    """
+    from spvs_build.migrate import _derive_slug
+
+    long_desc = " ".join(["alphabetic"] * 8)
+    taken: set[str] = set()
+    s1 = _derive_slug(long_desc, taken)
+    taken.add(s1)
+    s2 = _derive_slug(long_desc, taken)
+    taken.add(s2)
+    s3 = _derive_slug(long_desc, taken)
+
+    assert len(s1) <= 60
+    assert len(s2) <= 60
+    assert len(s3) <= 60
+    assert len({s1, s2, s3}) == 3

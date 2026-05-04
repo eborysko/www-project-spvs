@@ -6,6 +6,8 @@ from pathlib import Path
 from spvs_build.model import (
     Category,
     Control,
+    Mapping,
+    MappingItem,
     Metadata,
     SubCategory,
 )
@@ -19,13 +21,19 @@ def _ctrl(
     metadata: Metadata | None = None,
     source_path: str = "controls/baseline/V1/V1.1/V1.1.1-x.yaml",
 ) -> Control:
+    # Default to a minimal but valid mapping so the test control passes the
+    # schema's "active controls must have at least one mapping" constraint.
+    # Tests that need empty-mapping behavior pass an explicit override.
+    default_mappings = {
+        "cwe": Mapping(framework="cwe", items=[MappingItem(id="CWE-287")]),
+    }
     return Control(
         id=id,
         category=Category(id="V1", name="Plan"),
         sub_category=SubCategory(id=sub_id, name="IAM"),
         description="x",
         level=level,
-        mappings={},
+        mappings=default_mappings,
         metadata=metadata or Metadata(status="active"),
         source_path=source_path,
     )

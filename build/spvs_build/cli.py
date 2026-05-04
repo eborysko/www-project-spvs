@@ -28,9 +28,23 @@ def main() -> None:
     """SPVS YAML build tooling."""
 
 
+_SUPPLEMENT_OPT = click.option(
+    "--supplement",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True, readable=True, path_type=Path),
+    required=True,
+)
+_SCHEMA_OPT = click.option(
+    "--schema",
+    type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True, path_type=Path),
+    required=True,
+)
+_RENDERER_OPT = click.option("--renderer", type=click.Choice(list(RENDERERS.keys())), required=True)
+_OUT_OPT = click.option("--out", type=click.Path(path_type=Path), required=True)
+
+
 @main.command()
-@click.option("--supplement", type=click.Path(path_type=Path), required=True)
-@click.option("--schema", type=click.Path(path_type=Path), required=True)
+@_SUPPLEMENT_OPT
+@_SCHEMA_OPT
 def validate(supplement: Path, schema: Path) -> None:
     """Validate a supplement directory against the schema and semantic rules."""
     schema_doc = json.loads(schema.read_text())
@@ -45,10 +59,10 @@ def validate(supplement: Path, schema: Path) -> None:
 
 
 @main.command()
-@click.option("--supplement", type=click.Path(path_type=Path), required=True)
-@click.option("--schema", type=click.Path(path_type=Path), required=True)
-@click.option("--renderer", type=click.Choice(list(RENDERERS.keys())), required=True)
-@click.option("--out", type=click.Path(path_type=Path), required=True)
+@_SUPPLEMENT_OPT
+@_SCHEMA_OPT
+@_RENDERER_OPT
+@_OUT_OPT
 def build(supplement: Path, schema: Path, renderer: str, out: Path) -> None:
     """Validate then render the supplement to the specified output."""
     schema_doc = json.loads(schema.read_text())
@@ -64,10 +78,10 @@ def build(supplement: Path, schema: Path, renderer: str, out: Path) -> None:
 
 
 @main.command()
-@click.option("--supplement", type=click.Path(path_type=Path), required=True)
-@click.option("--schema", type=click.Path(path_type=Path), required=True)
-@click.option("--renderer", type=click.Choice(list(RENDERERS.keys())), required=True)
-@click.option("--out", type=click.Path(path_type=Path), required=True)
+@_SUPPLEMENT_OPT
+@_SCHEMA_OPT
+@_RENDERER_OPT
+@_OUT_OPT
 def check(supplement: Path, schema: Path, renderer: str, out: Path) -> None:
     """Build, then verify the rendered output matches what's committed (drift check)."""
     ctx = click.get_current_context()
@@ -84,7 +98,12 @@ def check(supplement: Path, schema: Path, renderer: str, out: Path) -> None:
         text=True,
         check=False,
     )
-    if result.returncode != 0:
+    # `git diff --exit-code` exits 0 = no diff, 1 = diff found, >1 = git error.
+    # Distinguish drift (legitimate) from git execution failure (broken setup).
+    if result.returncode == 0:
+        click.echo(f"{out} is in sync with sources.")
+        return
+    if result.returncode == 1:
         click.echo(result.stdout)
         click.echo(
             f"\nDrift detected in {out}. The committed file does not match what "
@@ -94,7 +113,16 @@ def check(supplement: Path, schema: Path, renderer: str, out: Path) -> None:
             err=True,
         )
         sys.exit(1)
-    click.echo(f"{out} is in sync with sources.")
+    # returncode > 1: real git error (not a diff signal)
+    click.echo(result.stdout, err=True)
+    click.echo(result.stderr, err=True)
+    click.echo(
+        f"\ngit diff failed (exit {result.returncode}). This is a tooling/setup "
+        "error, not a drift signal. Verify git is installed and the working "
+        "directory is a git repository.",
+        err=True,
+    )
+    sys.exit(result.returncode)
 
 
 @main.command()

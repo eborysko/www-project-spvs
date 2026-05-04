@@ -218,12 +218,24 @@ def _detect_level(row: dict) -> int:  # type: ignore
 
 
 def _derive_slug(description: str, taken: set[str]) -> str:
+    """Build a kebab-case slug that fits the 60-char regex and is unique within `taken`.
+
+    Reserves space for the `-<counter>` suffix on collision so the loop always
+    makes progress (an earlier version that did `f"{base}-{counter}"[:60]` could
+    truncate the suffix when `base` was already 60 chars and loop forever).
+    """
     words = re.findall(r"[a-z0-9]+", description.lower())
     words = [w for w in words if w not in STOPWORDS][:6]
-    slug = "-".join(words)[:60].strip("-") or "control"
-    base = slug
+    base_root = "-".join(words).strip("-") or "control"
+    slug = base_root[:60]
     counter = 2
     while slug in taken:
-        slug = f"{base}-{counter}"[:60]
+        suffix = f"-{counter}"
+        max_root_len = 60 - len(suffix)
+        if max_root_len <= 0:
+            # Fallback for an absurd counter (1000s of collisions on the same root).
+            slug = f"control{suffix}"[:60]
+        else:
+            slug = base_root[:max_root_len] + suffix
         counter += 1
     return slug
