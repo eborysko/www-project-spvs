@@ -25,7 +25,7 @@ def _ctrl(
     # schema's "active controls must have at least one mapping" constraint.
     # Tests that need empty-mapping behavior pass an explicit override.
     default_mappings = {
-        "cwe": Mapping(framework="cwe", items=[MappingItem(id="CWE-287")]),
+        "cwe": Mapping(framework="cwe", items=(MappingItem(id="CWE-287"),)),
     }
     return Control(
         id=id,

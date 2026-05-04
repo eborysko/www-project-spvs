@@ -27,23 +27,23 @@ def _sample_v1_1_1() -> Control:
         mappings={
             "nist_800_53": Mapping(
                 framework="nist_800_53",
-                items=[
+                items=(
                     MappingItem("IA-2(1)"),
                     MappingItem("IA-2(2)"),
                     MappingItem("IA-2(12)"),
                     MappingItem("IA-5"),
-                ],
+                ),
             ),
-            "owasp_cicd": Mapping(framework="owasp_cicd", items=[MappingItem("CICD-SEC-2")]),
+            "owasp_cicd": Mapping(framework="owasp_cicd", items=(MappingItem("CICD-SEC-2"),)),
             "cwe": Mapping(
                 framework="cwe",
-                items=[
+                items=(
                     MappingItem("CWE-308", "Use of Single-Factor Authentication"),
                     MappingItem(
                         "CWE-287",
                         "Improper Authentication - Weak authentication mechanisms",
                     ),
-                ],
+                ),
             ),
         },
         metadata=Metadata(status="active"),

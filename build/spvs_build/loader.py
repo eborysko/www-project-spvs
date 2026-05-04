@@ -30,14 +30,18 @@ class LoadError:
     message: str
 
 
-def _natural_sort_key(path: Path) -> tuple[int, ...]:
-    """Sort by V<n>.<n>.<n> numeric components, not lexicographic."""
+def _natural_sort_key(path: Path) -> tuple[tuple[int, ...], str]:
+    """Sort by V<n>.<n>.<n> numeric components, with the path string as a
+    deterministic tiebreaker. Without the tiebreaker, two files with the same
+    numeric prefix (e.g., a duplicate-id error case or a typo) would sort
+    nondeterministically."""
     name = path.stem.split("-")[0]
     parts = name.lstrip("V").split(".")
     try:
-        return tuple(int(p) for p in parts)
+        nums = tuple(int(p) for p in parts)
     except ValueError:
-        return (0,)
+        nums = (0,)
+    return (nums, path.as_posix())
 
 
 def load_supplement(root: Path) -> tuple[list[Control], list[LoadError]]:
@@ -107,7 +111,9 @@ def _build_control(raw: dict[str, object], path: Path) -> Control:
         mappings={
             framework: Mapping(
                 framework=framework,
-                items=[_build_mapping_item(i) for i in cast(list[object], body.get("items", []))],
+                items=tuple(
+                    _build_mapping_item(i) for i in cast(list[object], body.get("items", []))
+                ),
             )
             for framework, body in raw_mappings.items()
         },
@@ -132,7 +138,7 @@ def _build_metadata(raw: dict[str, object]) -> Metadata:
 
     return Metadata(
         status=cast(Status, raw.get("status", "active")),
-        change_tags=[
+        change_tags=tuple(
             ChangeTag(
                 type=cast(ChangeTagType, t["type"]),
                 reference=cast(str | None, t.get("reference")),
@@ -140,7 +146,7 @@ def _build_metadata(raw: dict[str, object]) -> Metadata:
                 to_level=cast(int | None, t.get("to_level")),
             )
             for t in raw_change_tags
-        ],
+        ),
         introduced_in=cast(str | None, raw.get("introduced_in")),
         last_modified_in=cast(str | None, raw.get("last_modified_in")),
         moved_to=cast(str | None, raw.get("moved_to")),

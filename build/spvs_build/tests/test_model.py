@@ -46,10 +46,10 @@ def test_change_tag_with_reference() -> None:
 def test_metadata_with_change_tags_list() -> None:
     meta = Metadata(
         status="active",
-        change_tags=[
+        change_tags=(
             ChangeTag(type="MODIFIED"),
             ChangeTag(type="MOVED_FROM", reference="V1.1.7"),
-        ],
+        ),
     )
     assert len(meta.change_tags) == 2
     assert meta.change_tags[1].reference == "V1.1.7"

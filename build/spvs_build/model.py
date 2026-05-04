@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Literal
 
 ChangeTagType = Literal[
@@ -46,7 +46,7 @@ class Mapping:
     """All entries for one framework (e.g., nist_800_53, cwe)."""
 
     framework: str
-    items: list[MappingItem]
+    items: tuple[MappingItem, ...]
 
 
 @dataclass(frozen=True)
@@ -60,7 +60,7 @@ class ChangeTag:
 @dataclass(frozen=True)
 class Metadata:
     status: Status = "active"
-    change_tags: list[ChangeTag] = field(default_factory=list)
+    change_tags: tuple[ChangeTag, ...] = ()
     introduced_in: str | None = None
     last_modified_in: str | None = None
     moved_to: str | None = None
@@ -74,6 +74,10 @@ class Control:
     sub_category: SubCategory
     description: str
     level: int  # 1, 2, or 3 — single value
+    # NOTE: Control.mappings is a dict for ergonomic by-framework lookup. The
+    # dataclass is frozen=True (no field reassignment), but the dict itself is
+    # mutable. Treat it as logically immutable; constructors should not retain
+    # references to the underlying dict after passing it in.
     mappings: dict[str, Mapping]  # framework_name -> Mapping
     metadata: Metadata
     source_path: str | None = None  # set by loader for error reporting
