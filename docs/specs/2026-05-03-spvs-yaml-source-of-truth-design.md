@@ -82,7 +82,7 @@ changes).
 
 ### Repository layout (additive — nothing existing moves in MVP)
 
-```
+```text
 controls/
   baseline/                          # 1.0 baseline supplement
     V1/V1.1/V1.1.1-verify-mfa-enabled.yaml
@@ -128,7 +128,7 @@ docs/specs/
 
 ### Build flow (MVP)
 
-```
+```text
 controls/baseline/**/*.yaml
         │
         ▼
@@ -336,8 +336,11 @@ for a security-focused open standard:
   vetting on every dependency update.
 - **Lockfile drift gate** — CI runs `uv sync --frozen` which fails if
   `uv.lock` does not match `pyproject.toml`. No undocumented dep changes.
-- **Secrets scanning** — `gitleaks` runs in pre-commit and CI; rejects
-  commits containing API keys, tokens, or private key material.
+- **Secrets scanning** — three layers: GitHub native Secret Scanning runs
+  continuously server-side on every push and scans full history (free for
+  public repos); GitHub Push Protection blocks pushes that introduce secrets
+  before they enter the repo (enabled in repo settings); and a local
+  `gitleaks` pre-commit hook for fast developer-side feedback.
 - **Conventional commits enforcement** — `commit-msg` hook validates
   commit message format; produces clean changelog/release notes downstream.
 - **No-direct-commit-to-main** — pre-commit hook blocks direct commits to
@@ -357,7 +360,7 @@ for a security-focused open standard:
 
 ### CLI surface
 
-```
+```sh
 python -m spvs_build validate                  # schema + semantic validation only
 python -m spvs_build build                     # regenerate all CSV outputs
 python -m spvs_build build --supplement baseline   # one supplement only
@@ -428,7 +431,7 @@ Two consecutive `build` runs produce byte-identical CSVs. The CI drift check
 
 Example output:
 
-```
+```text
 controls/baseline/V1/V1.1/V1.1.1-verify-mfa-enabled.yaml:7
   E001 [schema] field `level` must be 1, 2, or 3 (got: "two")
 
@@ -461,9 +464,13 @@ A one-shot script (`python -m spvs_build migrate`) that:
    - Detects and strips `[ADDED]`, `[MODIFIED]`, `[MOVED FROM x.y.z]`, etc.
      from `req_description`; converts to structured `metadata.change_tags`
    - Determines `level` from which of the three level columns has `X`
-3. For each placeholder row: emits a tombstone YAML with `metadata.status`
-   and (where derivable) `metadata.moved_to`
-4. Writes one YAML file per control to
+3. Placeholder rows (`req_id == "-"`) are *skipped*: the original CSV uses
+   them to reserve deleted/moved id numbers, but the YAML model does not
+   need them. The id sequence is allowed to have gaps. (A future supplement
+   that needs explicit deletion semantics could introduce tombstone YAML
+   files via `metadata.status: deleted | moved | deleted_merged_to` —
+   not part of MVP.)
+4. Writes one YAML file per active control to
    `controls/baseline/V<cat>/V<sub>/V<id>-<slug>.yaml` using `ruamel.yaml`
    for stable formatting
 
@@ -492,7 +499,7 @@ The drift-check job in CI proves this every time the PR is updated.
 
 | Risk | Mitigation |
 |---|---|
-| Slug collisions within a sub-category | Migration tool detects, falls back to `V<id>-<n-words>` then to `V<id>-<short-hash>`; reports all collisions for human review before commit |
+| Slug collisions within a sub-category | Migration tool detects collisions and appends an incremental numeric suffix (`-2`, `-3`, ...) to the colliding slug; if the slug exhausts the 60-char limit (extreme edge case), falls back to `control-<n>`. Slug derivation reserves space for the suffix each iteration so the loop always makes progress. All collisions are surfaced in the migrated YAML filenames for human review before commit. |
 | Existing CSV data quality bugs (mismatched CWE id/description counts) | Tool fails loudly with file/row references; data is fixed in CSV first, then migration re-run |
 | Lossy round-trip | Drift-check in CI catches this; PR cannot merge |
 | Reviewer fatigue on a 115-file PR | PR is reviewed primarily for the build/schema/CI portions; YAML files reviewed by spot-check + the byte-identical CSV check (which proves no semantic change) |
@@ -518,7 +525,7 @@ If maintainers reject the model after merge, reverting is straightforward:
 
 ### Job: `validate-and-build`
 
-```
+```text
 1. Checkout (fetch-depth: 1)
 2. Install uv (single curl-based step, ~2s)
 3. cd build && uv sync --frozen          # verify lockfile + install deps
@@ -539,7 +546,7 @@ Drift errors block merge. Schema/semantic/referential errors block merge.
 When a contributor edits YAML but forgets to regenerate the CSV, the `check`
 step fails with a tailored message via GitHub Actions annotations:
 
-```
+```text
 1.5/OWASP_SPVS_1.0_-en_Requirements.csv:#L42
 ::error::CSV drift detected. The committed CSV does not match what your YAML
 would produce. Run this locally and commit the result:
