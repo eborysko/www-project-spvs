@@ -360,12 +360,16 @@ for a security-focused open standard:
 
 ### CLI surface
 
+All commands run from the `build/` directory so `python -m spvs_build`
+resolves the package from its `pyproject.toml`. The Makefile targets
+(`make validate-baseline`, etc.) wrap these.
+
 ```sh
-python -m spvs_build validate                  # schema + semantic validation only
-python -m spvs_build build                     # regenerate all CSV outputs
-python -m spvs_build build --supplement baseline   # one supplement only
-python -m spvs_build check                     # build + drift check (CI mode)
-python -m spvs_build migrate <csv> <out_dir>   # one-shot CSV → YAML; used once per supplement
+cd build && uv run python -m spvs_build validate                  # schema + semantic validation only
+cd build && uv run python -m spvs_build build                     # regenerate all CSV outputs
+cd build && uv run python -m spvs_build build --supplement baseline   # one supplement only
+cd build && uv run python -m spvs_build check                     # build + drift check (CI mode)
+cd build && uv run python -m spvs_build migrate <csv> <out_dir>   # one-shot CSV → YAML; used once per supplement
 ```
 
 ### Loader contract
