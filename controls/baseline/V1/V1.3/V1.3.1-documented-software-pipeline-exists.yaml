@@ -11,7 +11,7 @@ level: 1
 mappings:
   nist_800_53:
     items:
-      - PL1
+      - PL-1
   owasp_cicd:
     items:
       - CICD-SEC-4
