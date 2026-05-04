@@ -111,6 +111,16 @@ def _build_doc(
     nist = _parse_nist(row.get("NIST", ""))
     cicd = _split(row.get("OWASP_CICD_Risk", ""), ";")
     level = _detect_level(row)
+    if level is None:
+        marked = [n for n in (1, 2, 3) if (row.get(f"level {n}") or "").strip().upper() == "X"]
+        errors.append(
+            MigrationError(
+                row_num,
+                f"row must mark exactly one level (level 1, 2, or 3) with 'X'; "
+                f"found {len(marked)} marked: {marked}. Fix the CSV first.",
+            )
+        )
+        return None
 
     mappings: dict = {}  # type: ignore
     if nist:
@@ -210,11 +220,14 @@ def _split(raw: str, sep: str) -> list[str]:
     return [s.strip() for s in raw.split(sep) if s.strip()]
 
 
-def _detect_level(row: dict) -> int:  # type: ignore
-    for n in (1, 2, 3):
-        if (row.get(f"level {n}") or "").strip().upper() == "X":
-            return n
-    return 1
+def _detect_level(row: dict) -> int | None:  # type: ignore
+    """Return the single level (1, 2, or 3) marked with 'X' in the row, or None
+    if zero or more than one level columns are marked. Caller is responsible for
+    surfacing the ambiguity as a MigrationError."""
+    marked = [n for n in (1, 2, 3) if (row.get(f"level {n}") or "").strip().upper() == "X"]
+    if len(marked) == 1:
+        return marked[0]
+    return None
 
 
 def _derive_slug(description: str, taken: set[str]) -> str:

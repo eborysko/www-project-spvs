@@ -63,6 +63,38 @@ def test_migrate_fails_loudly_on_mismatched_cwe_lengths(tmp_path: Path) -> None:
     assert any(isinstance(e, MigrationError) and "cwe" in e.message.lower() for e in errors)
 
 
+def test_migrate_fails_loudly_on_no_level_marked(tmp_path: Path) -> None:
+    """Regression: rows with no level column marked must fail rather than
+    silently defaulting to L1, which previously hid bad CSV data."""
+    csv = tmp_path / "bad.csv"
+    csv.write_text(
+        "category_id,catagory_name,sub-category_id,sub-catagory_name,req_id,"
+        "req_description,level 1,level 2,level 3,NIST,OWASP_CICD_Risk,"
+        "cwe_mapping,cwe_description\n"
+        "V1,Plan,V1.1,IAM,V1.1.1,desc,,,,N,O,CWE-1,The CWE\n"
+    )
+    out = tmp_path / "out"
+    out.mkdir()
+    errors = migrate_baseline(csv, out)
+    assert any(isinstance(e, MigrationError) and "level" in e.message.lower() for e in errors)
+
+
+def test_migrate_fails_loudly_on_multiple_levels_marked(tmp_path: Path) -> None:
+    """Regression: rows with more than one level column marked must fail
+    rather than silently using the first match, which previously hid bad data."""
+    csv = tmp_path / "bad.csv"
+    csv.write_text(
+        "category_id,catagory_name,sub-category_id,sub-catagory_name,req_id,"
+        "req_description,level 1,level 2,level 3,NIST,OWASP_CICD_Risk,"
+        "cwe_mapping,cwe_description\n"
+        "V1,Plan,V1.1,IAM,V1.1.1,desc,X,X,,N,O,CWE-1,The CWE\n"
+    )
+    out = tmp_path / "out"
+    out.mkdir()
+    errors = migrate_baseline(csv, out)
+    assert any(isinstance(e, MigrationError) and "level" in e.message.lower() for e in errors)
+
+
 def test_migrate_fails_loudly_on_descriptions_without_ids(tmp_path: Path) -> None:
     """Regression: description-only rows must fail rather than silently
     discarding the descriptions. The earlier check guarded only on non-empty
