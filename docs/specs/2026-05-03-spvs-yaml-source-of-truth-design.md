@@ -468,15 +468,17 @@ A one-shot script (`python -m spvs_build migrate`) that:
    - Detects and strips `[ADDED]`, `[MODIFIED]`, `[MOVED FROM x.y.z]`, etc.
      from `req_description`; converts to structured `metadata.change_tags`
    - Determines `level` from which of the three level columns has `X`
-3. Placeholder rows (`req_id == "-"`) are *skipped*: the original CSV uses
-   them to reserve deleted/moved id numbers, but the YAML model does not
-   need them. The id sequence is allowed to have gaps. (A future supplement
-   that needs explicit deletion semantics could introduce tombstone YAML
-   files via `metadata.status: deleted | moved | deleted_merged_to` —
-   not part of MVP.)
-4. Writes one YAML file per active control to
+3. Placeholder rows (`req_id == "-"`) become first-class tombstone YAML
+   files so the regenerated CSV can re-emit the placeholder row in the
+   same position (preserves byte-alignment with previous CSV consumers).
+   Each placeholder synthesizes an id of the form `V<sub>.<next-num>`
+   based on the last active control's sub-category, with
+   `metadata.status: deleted` and empty content. The renderer detects
+   non-active status and emits the canonical `-,-,-,...` row.
+4. Writes one YAML file per active control or tombstone to
    `controls/baseline/V<cat>/V<sub>/V<id>-<slug>.yaml` using `ruamel.yaml`
-   for stable formatting
+   for stable formatting (slug is `tombstone` for placeholder-derived
+   files)
 
 ### Migration PR shape
 
