@@ -99,12 +99,19 @@ CI runtime target: under 30 seconds cold install via `uv` plus all checks.
 
 ### Updating dependencies
 
-Bump the version in `pyproject.toml`, then:
+Routine `make install` / `make sync` install from the committed `uv.lock`
+without re-resolving (`uv sync --dev --frozen`). The lockfile is
+authoritative.
+
+To intentionally pull updated package versions, run the maintenance
+target:
 
 ```sh
-make sync               # regenerate uv.lock
+make lock               # uv lock + uv sync --dev (re-resolve from pyproject.toml)
 make check && make test # confirm nothing broke
 ```
+
+Then commit the updated `uv.lock`.
 
 The `[tool.uv] exclude-newer = "7 days"` cool-down gate in `pyproject.toml`
 will block adoption of any package version published in the last 7 days,
@@ -146,7 +153,7 @@ This toolchain follows defence-in-depth practices:
 ## Troubleshooting
 
 **`uv sync --frozen` fails in CI but works locally.**
-Your local lockfile is out of sync with `pyproject.toml`. Run `make sync` and commit the updated `uv.lock`.
+Your local lockfile is out of sync with `pyproject.toml`. Run `make lock` (the maintenance target) and commit the updated `uv.lock`.
 
 **Drift check fails on a PR.**
 You changed YAML but didn't regenerate the CSV. Run `make build-baseline`, then `git add` and commit the regenerated CSV.

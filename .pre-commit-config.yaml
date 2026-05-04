@@ -41,7 +41,7 @@ repos:
           - "click==8.1.7"
           - "ruamel.yaml==0.18.6"
           - "jsonschema==4.21.1"
-          - "types-jsonschema>=1.0.0"
+          - "types-jsonschema==4.26.0.20260408"
         args: ["--config-file", "build/pyproject.toml"]
         files: ^build/spvs_build/
 

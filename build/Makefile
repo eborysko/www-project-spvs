@@ -3,7 +3,7 @@
 # Usage: make <target>
 
 .DEFAULT_GOAL := help
-.PHONY: help install sync lint lint-fix format format-check type-check check \
+.PHONY: help install sync lock lint lint-fix format format-check type-check check \
         test test-fast test-file pre-commit pre-commit-install pre-commit-update \
         pre-commit-all validate-baseline build-baseline check-baseline \
         migrate-baseline yamllint security clean
@@ -30,12 +30,14 @@ help:
 # ---------------------------------------------------------------------------
 # Environment setup
 # ---------------------------------------------------------------------------
-install: ## Bootstrap: lock + sync deps + install pre-commit hooks
-	uv lock
-	uv sync --dev
+install: ## Bootstrap: install deps from lockfile + install pre-commit hooks
+	uv sync --dev --frozen
 	$(MAKE) pre-commit-install
 
-sync: ## Sync deps without reinstalling pre-commit hooks
+sync: ## Install deps from lockfile (no re-resolution; lockfile is authoritative)
+	uv sync --dev --frozen
+
+lock: ## (Maintenance) Regenerate uv.lock by re-resolving dependencies
 	uv lock
 	uv sync --dev
 

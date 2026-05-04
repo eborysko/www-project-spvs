@@ -638,7 +638,7 @@ dev = [
     { name = "pytest", specifier = "==8.0.2" },
     { name = "pytest-cov", specifier = "==4.1.0" },
     { name = "ruff", specifier = "==0.3.4" },
-    { name = "types-jsonschema", specifier = ">=1.0.0" },
+    { name = "types-jsonschema", specifier = "==4.26.0.20260408" },
     { name = "yamllint", specifier = "==1.35.1" },
 ]
 
