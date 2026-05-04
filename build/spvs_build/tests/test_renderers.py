@@ -70,3 +70,26 @@ def test_csv_baseline_is_deterministic(tmp_path: Path) -> None:
 def test_renderer_registry_has_csv_baseline() -> None:
     assert "csv-baseline" in RENDERERS
     assert callable(RENDERERS["csv-baseline"])
+
+
+def test_csv_baseline_renders_tombstone_as_dashes_row(tmp_path: Path) -> None:
+    """Tombstones (status=deleted/moved/etc.) render as the all-dashes
+    placeholder row that the published baseline CSV uses to reserve
+    deleted/moved id numbers — preserves byte-alignment with previous CSV
+    consumers."""
+    tombstone = Control(
+        id="V1.5.4",
+        category=Category(id="V1", name="Plan"),
+        sub_category=SubCategory(id="V1.5", name="Source Code Management Hardening"),
+        description="",
+        level=1,
+        mappings={},
+        metadata=Metadata(status="deleted"),
+    )
+    out = tmp_path / "tombstone.csv"
+    render_baseline([tombstone], out)
+
+    lines = out.read_text(encoding="utf-8").splitlines()
+    # First line is the column header; second is the tombstone row.
+    assert len(lines) == 2
+    assert lines[1] == "-,-,-,-,-,-,-,-,-,-,-,-,-"

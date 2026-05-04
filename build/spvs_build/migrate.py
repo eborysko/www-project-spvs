@@ -59,6 +59,14 @@ def migrate_baseline(csv_path: Path, out_dir: Path) -> list[MigrationError]:
     yaml.default_flow_style = False
     yaml.width = 200
 
+    # Tombstone synthesis context: the source CSV uses placeholder rows
+    # (`-,-,-,...`) to reserve id numbers of deleted/moved controls. We turn
+    # each into a tombstone YAML file with status=deleted so the renderer can
+    # emit the placeholder row back into the regenerated CSV (preserving
+    # byte-alignment with the published baseline).
+    last_active: dict[str, str] | None = None
+    sub_cat_max_id: dict[str, int] = {}
+
     with csv_path.open("r", encoding="utf-8", newline="") as f:
         reader = csv.DictReader(f)
         header_errors = _validate_headers(reader.fieldnames)
@@ -69,7 +77,12 @@ def migrate_baseline(csv_path: Path, out_dir: Path) -> list[MigrationError]:
             cat_name = row.get("category_name") or row.get("catagory_name", "")
             sub_name = row.get("sub-category_name") or row.get("sub-catagory_name", "")
             req_id = row["req_id"]
+
             if req_id == "-":
+                tomb_doc = _build_tombstone(last_active, sub_cat_max_id, row_num, errors)
+                if tomb_doc is None:
+                    continue
+                _write_doc(tomb_doc, "tombstone", out_dir, yaml, seen_slugs)
                 continue
 
             doc = _build_doc(row, cat_name, sub_name, row_num, errors)
@@ -89,7 +102,76 @@ def migrate_baseline(csv_path: Path, out_dir: Path) -> list[MigrationError]:
             with target.open("w", encoding="utf-8") as out:
                 yaml.dump(doc, out)
 
+            last_active = {
+                "category_id": cat_id,
+                "category_name": cat_name,
+                "sub_category_id": sub_id,
+                "sub_category_name": sub_name,
+            }
+            id_num = int(req_id.lstrip("V").split(".")[-1])
+            sub_cat_max_id[sub_id] = max(sub_cat_max_id.get(sub_id, 0), id_num)
+
     return errors
+
+
+def _build_tombstone(
+    last_active: dict | None,  # type: ignore
+    sub_cat_max_id: dict[str, int],
+    row_num: int,
+    errors: list,  # type: ignore
+) -> dict | None:  # type: ignore
+    """Synthesize a tombstone YAML doc for a placeholder CSV row.
+
+    The placeholder row carries no identifying info (all dashes), so we infer
+    the sub-category from the last active control we saw and assign the next
+    sequential id number in that sub-category.
+    """
+    if last_active is None:
+        errors.append(
+            MigrationError(
+                row_num,
+                "placeholder row has no preceding active control; "
+                "cannot determine sub-category context for tombstone",
+            )
+        )
+        return None
+    sub_id = last_active["sub_category_id"]
+    next_num = sub_cat_max_id.get(sub_id, 0) + 1
+    tombstone_id = f"{sub_id}.{next_num}"
+    sub_cat_max_id[sub_id] = next_num
+    return {
+        "id": tombstone_id,
+        "category": {
+            "id": last_active["category_id"],
+            "name": last_active["category_name"],
+        },
+        "sub_category": {
+            "id": last_active["sub_category_id"],
+            "name": last_active["sub_category_name"],
+        },
+        "description": "",
+        "level": 1,
+        "mappings": {},
+        "metadata": {"status": "deleted"},
+    }
+
+
+def _write_doc(
+    doc: dict,  # type: ignore
+    slug: str,
+    out_dir: Path,
+    yaml: YAML,
+    seen_slugs: dict[str, set[str]],
+) -> None:
+    """Write a single control or tombstone doc to disk under controls/<cat>/<sub>/."""
+    cat_id = doc["category"]["id"]
+    sub_id = doc["sub_category"]["id"]
+    seen_slugs.setdefault(sub_id, set()).add(slug)
+    target_dir = out_dir / cat_id / sub_id
+    target_dir.mkdir(parents=True, exist_ok=True)
+    target = target_dir / f"{doc['id']}-{slug}.yaml"
+    with target.open("w", encoding="utf-8") as out:
+        yaml.dump(doc, out)
 
 
 def _validate_headers(fieldnames: Sequence[str] | None) -> list[MigrationError]:

@@ -14,8 +14,27 @@ def test_migrate_emits_one_yaml_per_data_row(tmp_path: Path, fixture_dir: Path) 
     assert errors == []
 
     yaml_files = sorted(out.rglob("*.yaml"))
-    # 3 data rows (placeholder skipped) = 3 files
-    assert len(yaml_files) == 3
+    # 3 active rows + 1 placeholder (-> tombstone YAML) = 4 files
+    assert len(yaml_files) == 4
+
+
+def test_migrate_emits_tombstone_for_placeholder_row(tmp_path: Path, fixture_dir: Path) -> None:
+    """Placeholder rows ('-,-,-,...') become tombstone YAMLs with the next
+    sequential id in the last seen sub-category and status=deleted."""
+    out = tmp_path / "controls" / "baseline"
+    out.mkdir(parents=True)
+    errors = migrate_baseline(fixture_dir / "sample_baseline.csv", out)
+    assert errors == []
+
+    # Sample CSV: placeholder follows V1.1.2 (last in V1.1) -> tombstone V1.1.3
+    yaml = YAML(typ="safe")
+    matched = list(out.rglob("V1.1.3-tombstone.yaml"))
+    assert len(matched) == 1, f"expected one V1.1.3-tombstone.yaml, got {matched}"
+    data = yaml.load(matched[0].read_text())
+    assert data["id"] == "V1.1.3"
+    assert data["metadata"]["status"] == "deleted"
+    assert data["description"] == ""
+    assert data["mappings"] == {}
 
 
 def test_migrate_extracts_change_tag_from_description(tmp_path: Path, fixture_dir: Path) -> None:

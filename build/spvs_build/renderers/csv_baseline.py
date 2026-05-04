@@ -66,6 +66,12 @@ def render(controls: list[Control], out_path: Path) -> None:
         writer = csv.writer(f, quoting=csv.QUOTE_MINIMAL, lineterminator="\n")
         writer.writerow(COLUMNS)
         for c in sorted_controls:
+            if c.metadata.status != "active":
+                # Tombstone (deleted/moved/etc.) renders as the all-dashes
+                # placeholder row that the published baseline CSV uses to
+                # reserve deleted/moved id numbers.
+                writer.writerow(["-"] * len(COLUMNS))
+                continue
             l1, l2, l3 = _level_marks(c.level)
             cwe_ids, cwe_descs = _format_cwe_pair(c)
             writer.writerow(
