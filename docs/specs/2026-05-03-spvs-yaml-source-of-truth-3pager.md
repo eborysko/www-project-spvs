@@ -22,7 +22,7 @@
 
 Adding or modifying a control is now editing a single, self-contained YAML file with a clear schema. Reviewers see a focused diff — one control, one file, no parallel CSV columns to mentally align. Filenames carry a short slug (`V1.1.1-verify-mfa-enabled.yaml`) so directory browsing tells the contributor what each file is about at a glance. The build pipeline regenerates the CSV automatically. CI gates each PR with a drift check that guarantees the YAML and CSV stay in sync. Contributors who want it can install pre-commit hooks to catch validation errors locally before pushing — opt-in, not required.
 
-Compound change tags from CONTRIBUTING.md (`[MODIFIED, MOVED FROM x.y.z]`, `[ADDED, SPLIT FROM x.y.z]`) are now structured metadata fields, queryable by tooling and immune to typo-induced parsing errors. Tombstones for deleted or moved controls are first-class YAML files rather than placeholder CSV rows, and referential validation catches dangling `moved_to` pointers before merge.
+Compound change tags from CONTRIBUTING.md (`[MODIFIED, MOVED FROM x.y.z]`, `[ADDED, SPLIT FROM x.y.z]`) are now structured metadata fields, queryable by tooling and immune to typo-induced parsing errors. Tombstones for deleted or moved controls are first-class YAML files (`metadata.status: deleted | moved | deleted_merged_to`) — the migration tool synthesizes one per placeholder CSV row, and the renderer emits each tombstone back as the canonical `-,-,-,...` placeholder row, preserving byte-alignment with previous CSV consumers. Referential validation catches dangling `moved_to` pointers before merge.
 
 #### What changes for consumers
 
