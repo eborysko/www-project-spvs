@@ -1,0 +1,25 @@
+id: V3.1.4
+category:
+  id: V3
+  name: Integrate (CI*)
+sub_category:
+  id: V3.1
+  name: Security of Pipeline Environment
+description: |-
+  Verify that build systems are hardened according to the guidelines for the specific platform or industry guidelines where available.
+level: 1
+mappings:
+  nist_800_53:
+    items:
+      - CM-6
+  owasp_cicd:
+    items:
+      - CICD-SEC-7
+  cwe:
+    items:
+      - id: CWE-1008
+        description: Architectural Concepts
+      - id: CWE-16
+        description: Configuration - Build system hardening
+metadata:
+  status: active

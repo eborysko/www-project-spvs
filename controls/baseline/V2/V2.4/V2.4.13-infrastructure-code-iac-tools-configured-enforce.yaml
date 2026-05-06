@@ -1,0 +1,25 @@
+id: V2.4.13
+category:
+  id: V2
+  name: Develop
+sub_category:
+  id: V2.4
+  name: Perform Security Checks
+description: |-
+  Verify that Infrastructure as Code (IaC) tools are configured to enforce security policies
+level: 2
+mappings:
+  nist_800_53:
+    items:
+      - CM-6
+  owasp_cicd:
+    items:
+      - CICD-SEC-7
+  cwe:
+    items:
+      - id: CWE-1069
+        description: Empty Exception Block
+      - id: CWE-1041
+        description: Use of Redundant Code - IaC security enforcement
+metadata:
+  status: active

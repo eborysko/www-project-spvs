@@ -1,0 +1,375 @@
+"""One-shot CSV → YAML migration for the baseline supplement."""
+
+from __future__ import annotations
+
+import csv
+import re
+from collections.abc import Sequence
+from dataclasses import dataclass
+from pathlib import Path
+
+from ruamel.yaml import YAML
+from ruamel.yaml.scalarstring import LiteralScalarString
+
+CHANGE_TAG_PATTERNS = [
+    (re.compile(r"^\[ADDED, SPLIT FROM ([^\]]+)\]\s*"), "ADDED+SPLIT_FROM"),
+    (re.compile(r"^\[MODIFIED, MOVED FROM ([^\]]+)\]\s*"), "MODIFIED+MOVED_FROM"),
+    (re.compile(r"^\[ADDED\]\s*"), "ADDED"),
+    (re.compile(r"^\[MODIFIED\]\s*"), "MODIFIED"),
+    (re.compile(r"^\[MOVED FROM ([^\]]+)\]\s*"), "MOVED_FROM"),
+    (re.compile(r"^\[MOVED TO ([^\]]+)\]\s*"), "MOVED_TO"),
+    (re.compile(r"^\[DELETED, MERGED TO ([^\]]+)\]\s*"), "DELETED_MERGED_TO"),
+    (re.compile(r"^\[DELETED\]\s*"), "DELETED"),
+    (re.compile(r"^\[LEVEL L([1-3]) > L([1-3])\]\s*"), "LEVEL_CHANGE"),
+]
+
+STOPWORDS = {
+    "verify",
+    "that",
+    "is",
+    "are",
+    "the",
+    "a",
+    "an",
+    "of",
+    "for",
+    "in",
+    "to",
+    "and",
+    "or",
+    "with",
+    "by",
+    "on",
+    "as",
+    "be",
+}
+
+
+@dataclass(frozen=True)
+class MigrationError:
+    csv_row: int
+    message: str
+
+
+def migrate_baseline(csv_path: Path, out_dir: Path) -> list[MigrationError]:
+    errors: list[MigrationError] = []
+    seen_slugs: dict[str, set[str]] = {}
+    yaml = YAML()
+    yaml.indent(mapping=2, sequence=4, offset=2)
+    yaml.default_flow_style = False
+    yaml.width = 200
+
+    # Tombstone synthesis context: the source CSV uses placeholder rows
+    # (`-,-,-,...`) to reserve id numbers of deleted/moved controls. We turn
+    # each into a tombstone YAML file with status=deleted so the renderer can
+    # emit the placeholder row back into the regenerated CSV (preserving
+    # byte-alignment with the published baseline).
+    last_active: dict[str, str] | None = None
+    sub_cat_max_id: dict[str, int] = {}
+
+    with csv_path.open("r", encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        header_errors = _validate_headers(reader.fieldnames)
+        if header_errors:
+            errors.extend(header_errors)
+            return errors
+        for row_num, row in enumerate(reader, start=2):
+            cat_name = row.get("category_name") or row.get("catagory_name", "")
+            sub_name = row.get("sub-category_name") or row.get("sub-catagory_name", "")
+            req_id = row["req_id"]
+
+            if req_id == "-":
+                tomb_doc = _build_tombstone(last_active, sub_cat_max_id, row_num, errors)
+                if tomb_doc is None:
+                    continue
+                _write_doc(tomb_doc, "tombstone", out_dir, yaml, seen_slugs)
+                continue
+
+            doc = _build_doc(row, cat_name, sub_name, row_num, errors)
+            if doc is None:
+                continue
+
+            slug = _derive_slug(
+                doc["description"], seen_slugs.setdefault(row["sub-category_id"], set())
+            )
+            seen_slugs[row["sub-category_id"]].add(slug)
+
+            sub_id = row["sub-category_id"]
+            cat_id = row["category_id"]
+            target_dir = out_dir / cat_id / sub_id
+            target_dir.mkdir(parents=True, exist_ok=True)
+            target = target_dir / f"{req_id}-{slug}.yaml"
+            with target.open("w", encoding="utf-8") as out:
+                yaml.dump(doc, out)
+
+            last_active = {
+                "category_id": cat_id,
+                "category_name": cat_name,
+                "sub_category_id": sub_id,
+                "sub_category_name": sub_name,
+            }
+            id_num = int(req_id.lstrip("V").split(".")[-1])
+            sub_cat_max_id[sub_id] = max(sub_cat_max_id.get(sub_id, 0), id_num)
+
+    return errors
+
+
+def _build_tombstone(
+    last_active: dict | None,  # type: ignore
+    sub_cat_max_id: dict[str, int],
+    row_num: int,
+    errors: list,  # type: ignore
+) -> dict | None:  # type: ignore
+    """Synthesize a tombstone YAML doc for a placeholder CSV row.
+
+    The placeholder row carries no identifying info (all dashes), so we infer
+    the sub-category from the last active control we saw and assign the next
+    sequential id number in that sub-category.
+    """
+    if last_active is None:
+        errors.append(
+            MigrationError(
+                row_num,
+                "placeholder row has no preceding active control; "
+                "cannot determine sub-category context for tombstone",
+            )
+        )
+        return None
+    sub_id = last_active["sub_category_id"]
+    next_num = sub_cat_max_id.get(sub_id, 0) + 1
+    tombstone_id = f"{sub_id}.{next_num}"
+    sub_cat_max_id[sub_id] = next_num
+    return {
+        "id": tombstone_id,
+        "category": {
+            "id": last_active["category_id"],
+            "name": last_active["category_name"],
+        },
+        "sub_category": {
+            "id": last_active["sub_category_id"],
+            "name": last_active["sub_category_name"],
+        },
+        "description": "",
+        "level": 1,
+        "mappings": {},
+        "metadata": {"status": "deleted"},
+    }
+
+
+def _write_doc(
+    doc: dict,  # type: ignore
+    slug: str,
+    out_dir: Path,
+    yaml: YAML,
+    seen_slugs: dict[str, set[str]],
+) -> None:
+    """Write a single control or tombstone doc to disk under controls/<cat>/<sub>/."""
+    cat_id = doc["category"]["id"]
+    sub_id = doc["sub_category"]["id"]
+    seen_slugs.setdefault(sub_id, set()).add(slug)
+    target_dir = out_dir / cat_id / sub_id
+    target_dir.mkdir(parents=True, exist_ok=True)
+    target = target_dir / f"{doc['id']}-{slug}.yaml"
+    with target.open("w", encoding="utf-8") as out:
+        yaml.dump(doc, out)
+
+
+def _validate_headers(fieldnames: Sequence[str] | None) -> list[MigrationError]:
+    """Verify the CSV has all columns the migration tool relies on.
+
+    Required (single name): req_id, req_description, category_id, sub-category_id.
+    Required (either spelling, to tolerate the historical typo):
+      category_name OR catagory_name
+      sub-category_name OR sub-catagory_name
+
+    Returns a list of MigrationError entries (csv_row=1, the header row) for
+    each missing requirement. Empty list means the header is acceptable.
+    """
+    errors: list[MigrationError] = []
+    if not fieldnames:
+        errors.append(MigrationError(1, "CSV has no header row"))
+        return errors
+
+    headers = set(fieldnames)
+    for required in ("req_id", "req_description", "category_id", "sub-category_id"):
+        if required not in headers:
+            errors.append(MigrationError(1, f"required header column missing: '{required}'"))
+    if "category_name" not in headers and "catagory_name" not in headers:
+        errors.append(
+            MigrationError(1, "required header missing: one of 'category_name' or 'catagory_name'")
+        )
+    if "sub-category_name" not in headers and "sub-catagory_name" not in headers:
+        errors.append(
+            MigrationError(
+                1,
+                "required header missing: one of 'sub-category_name' or 'sub-catagory_name'",
+            )
+        )
+    return errors
+
+
+def _build_doc(
+    row: dict,  # type: ignore
+    cat_name: str,
+    sub_name: str,
+    row_num: int,
+    errors: list,  # type: ignore
+) -> dict | None:  # type: ignore
+    description, change_tags = _extract_change_tags(row["req_description"])
+
+    cwe_ids = _split(row.get("cwe_mapping", ""), ";")
+    cwe_descs = _split(row.get("cwe_description", ""), ";")
+    if len(cwe_ids) != len(cwe_descs):
+        errors.append(
+            MigrationError(
+                row_num,
+                f"cwe_mapping has {len(cwe_ids)} ids but cwe_description has "
+                f"{len(cwe_descs)}: cannot pair safely. Fix the CSV first.",
+            )
+        )
+        return None
+
+    nist = _parse_nist(row.get("NIST", ""))
+    cicd = _split(row.get("OWASP_CICD_Risk", ""), ";")
+    level = _detect_level(row)
+    if level is None:
+        marked = [n for n in (1, 2, 3) if (row.get(f"level {n}") or "").strip().upper() == "X"]
+        errors.append(
+            MigrationError(
+                row_num,
+                f"row must mark exactly one level (level 1, 2, or 3) with 'X'; "
+                f"found {len(marked)} marked: {marked}. Fix the CSV first.",
+            )
+        )
+        return None
+
+    mappings: dict = {}  # type: ignore
+    if nist:
+        mappings["nist_800_53"] = {"items": nist}
+    if cicd:
+        mappings["owasp_cicd"] = {"items": cicd}
+    if cwe_ids:
+        mappings["cwe"] = {
+            "items": [{"id": i, "description": d} for i, d in zip(cwe_ids, cwe_descs, strict=False)]
+        }
+
+    metadata: dict = {"status": "active"}  # type: ignore
+    if change_tags:
+        metadata["change_tags"] = change_tags
+
+    return {
+        "id": row["req_id"],
+        "category": {"id": row["category_id"], "name": cat_name},
+        "sub_category": {"id": row["sub-category_id"], "name": sub_name},
+        "description": LiteralScalarString(description.strip()),
+        "level": level,
+        "mappings": mappings,
+        "metadata": metadata,
+    }
+
+
+def _extract_change_tags(description: str) -> tuple[str, list]:  # type: ignore
+    tags: list = []  # type: ignore
+    desc = description
+    while True:
+        matched = False
+        for pattern, kind in CHANGE_TAG_PATTERNS:
+            m = pattern.match(desc)
+            if not m:
+                continue
+            matched = True
+            desc = desc[m.end() :]
+            if kind == "MODIFIED+MOVED_FROM":
+                tags.append({"type": "MODIFIED"})
+                tags.append({"type": "MOVED_FROM", "reference": m.group(1)})
+            elif kind == "ADDED+SPLIT_FROM":
+                tags.append({"type": "ADDED"})
+                tags.append({"type": "SPLIT_FROM", "reference": m.group(1)})
+            elif kind == "LEVEL_CHANGE":
+                tags.append(
+                    {
+                        "type": "LEVEL_CHANGE",
+                        "from_level": int(m.group(1)),
+                        "to_level": int(m.group(2)),
+                    }
+                )
+            elif m.groups():
+                tags.append({"type": kind, "reference": m.group(1)})
+            else:
+                tags.append({"type": kind})
+            break
+        if not matched:
+            break
+    return desc, tags
+
+
+def _parse_nist(raw: str) -> list[str]:
+    """Split a NIST 800-53 control list on top-level commas only.
+
+    NIST IDs can contain parenthesized comma-separated enhancements like
+    `IA-2(1,2,12)` — those internal commas must NOT be treated as separators.
+    """
+    raw = raw.strip()
+    prefix = "NIST 800-53:"
+    if raw.startswith(prefix):
+        raw = raw[len(prefix) :].strip()
+
+    items: list[str] = []
+    current: list[str] = []
+    depth = 0
+    for ch in raw:
+        if ch == "(":
+            depth += 1
+            current.append(ch)
+        elif ch == ")":
+            depth = max(0, depth - 1)
+            current.append(ch)
+        elif ch == "," and depth == 0:
+            piece = "".join(current).strip()
+            if piece:
+                items.append(piece)
+            current = []
+        else:
+            current.append(ch)
+    piece = "".join(current).strip()
+    if piece:
+        items.append(piece)
+    return items
+
+
+def _split(raw: str, sep: str) -> list[str]:
+    return [s.strip() for s in raw.split(sep) if s.strip()]
+
+
+def _detect_level(row: dict) -> int | None:  # type: ignore
+    """Return the single level (1, 2, or 3) marked with 'X' in the row, or None
+    if zero or more than one level columns are marked. Caller is responsible for
+    surfacing the ambiguity as a MigrationError."""
+    marked = [n for n in (1, 2, 3) if (row.get(f"level {n}") or "").strip().upper() == "X"]
+    if len(marked) == 1:
+        return marked[0]
+    return None
+
+
+def _derive_slug(description: str, taken: set[str]) -> str:
+    """Build a kebab-case slug that fits the 60-char regex and is unique within `taken`.
+
+    Reserves space for the `-<counter>` suffix on collision so the loop always
+    makes progress (an earlier version that did `f"{base}-{counter}"[:60]` could
+    truncate the suffix when `base` was already 60 chars and loop forever).
+    """
+    words = re.findall(r"[a-z0-9]+", description.lower())
+    words = [w for w in words if w not in STOPWORDS][:6]
+    base_root = "-".join(words).strip("-") or "control"
+    slug = base_root[:60]
+    counter = 2
+    while slug in taken:
+        suffix = f"-{counter}"
+        max_root_len = 60 - len(suffix)
+        if max_root_len <= 0:
+            # Fallback for an absurd counter (1000s of collisions on the same root).
+            slug = f"control{suffix}"[:60]
+        else:
+            slug = base_root[:max_root_len] + suffix
+        counter += 1
+    return slug

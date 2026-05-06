@@ -1,0 +1,26 @@
+id: V1.1.7
+category:
+  id: V1
+  name: Plan
+sub_category:
+  id: V1.1
+  name: Identity and Access Management
+description: |-
+  Verify Quarterly audit on Version Control System administrators
+level: 2
+mappings:
+  nist_800_53:
+    items:
+      - AC-2(7)
+      - AU-6
+  owasp_cicd:
+    items:
+      - CICD-SEC-10
+  cwe:
+    items:
+      - id: CWE-223
+        description: Omission of Security-relevant Information
+      - id: CWE-778
+        description: Insufficient Logging - Audit trail maintenance
+metadata:
+  status: active

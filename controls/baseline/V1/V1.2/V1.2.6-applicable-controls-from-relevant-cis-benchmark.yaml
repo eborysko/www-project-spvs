@@ -1,0 +1,23 @@
+id: V1.2.6
+category:
+  id: V1
+  name: Plan
+sub_category:
+  id: V1.2
+  name: Hardening User Machines
+description: |-
+  Verify that the applicable controls from the relevant CIS Benchmark for OS hardening are in place.
+level: 3
+mappings:
+  nist_800_53:
+    items:
+      - CM-2
+  owasp_cicd:
+    items:
+      - CICD-SEC-4
+  cwe:
+    items:
+      - id: CWE-16
+        description: Umbrella weakness category for “Configuration” issues.
+metadata:
+  status: active

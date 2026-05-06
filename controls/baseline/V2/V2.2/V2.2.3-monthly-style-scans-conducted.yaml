@@ -1,0 +1,23 @@
+id: V2.2.3
+category:
+  id: V2
+  name: Develop
+sub_category:
+  id: V2.2
+  name: Software Quality
+description: |-
+  Verify monthly Style scans are conducted
+level: 1
+mappings:
+  nist_800_53:
+    items:
+      - RA-5
+  owasp_cicd:
+    items:
+      - CICD-SEC-4
+  cwe:
+    items:
+      - id: CWE-398
+        description: Indicator of Poor Code Quality - Style consistency
+metadata:
+  status: active

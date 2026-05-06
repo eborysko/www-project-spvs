@@ -1,0 +1,25 @@
+id: V4.3.5
+category:
+  id: V4
+  name: Release (CD*)
+sub_category:
+  id: V4.3
+  name: Secure Deployment Practices
+description: |-
+  Verify that production environments are isolated from development and testing environments
+level: 2
+mappings:
+  nist_800_53:
+    items:
+      - SC-3
+  owasp_cicd:
+    items:
+      - CICD-SEC-9
+  cwe:
+    items:
+      - id: CWE-1008
+        description: Architectural Concepts
+      - id: CWE-669
+        description: Incorrect Resource Transfer Between Spheres - Environment isolation
+metadata:
+  status: active

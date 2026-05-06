@@ -1,0 +1,24 @@
+id: V1.2.2
+category:
+  id: V1
+  name: Plan
+sub_category:
+  id: V1.2
+  name: Hardening User Machines
+description: |-
+  Verify Endpoint Protection is set to routinely update
+level: 1
+mappings:
+  nist_800_53:
+    items:
+      - SI-3
+      - SI-2
+  owasp_cicd:
+    items:
+      - CICD-SEC-4(2)
+  cwe:
+    items:
+      - id: CWE-1104
+        description: Use of Unmaintained Third Party Components - Failure to maintain security tools
+metadata:
+  status: active

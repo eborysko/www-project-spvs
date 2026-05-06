@@ -1,0 +1,25 @@
+id: V3.4.2
+category:
+  id: V3
+  name: Integrate (CI*)
+sub_category:
+  id: V3.4
+  name: Integrity of Artifacts
+description: |-
+  Verify that checksums are used to validate the integrity of build artifacts before deployment
+level: 3
+mappings:
+  nist_800_53:
+    items:
+      - SC-17
+  owasp_cicd:
+    items:
+      - CICD-SEC-7
+  cwe:
+    items:
+      - id: CWE-345
+        description: Insufficient Verification of Data Authenticity
+      - id: CWE-354
+        description: Improper Validation of Integrity Check Value - Artifact integrity
+metadata:
+  status: active

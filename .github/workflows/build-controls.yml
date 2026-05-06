@@ -1,0 +1,74 @@
+name: build-controls
+
+on:
+  pull_request:
+    paths:
+      - 'controls/**'
+      - 'schema/**'
+      - 'build/**'
+      - '1.5/OWASP_SPVS_1.0_-en_Requirements.csv'
+      - '.github/workflows/build-controls.yml'
+      - '.yamllint.yaml'
+      - '.pre-commit-config.yaml'
+  push:
+    branches: [main]
+
+jobs:
+  validate-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9  # v7
+        with:
+          version: "0.4.x"
+
+      - name: Install build dependencies (frozen lockfile)
+        working-directory: build
+        run: uv sync --dev --frozen
+
+      - name: Ruff lint (security rules included)
+        working-directory: build
+        run: uv run ruff check spvs_build/
+
+      - name: Ruff format check
+        working-directory: build
+        run: uv run ruff format --check spvs_build/
+
+      - name: Mypy strict type check
+        working-directory: build
+        run: uv run mypy spvs_build/
+
+      - name: Pytest with coverage gate (80%)
+        working-directory: build
+        run: uv run pytest
+
+      - name: Validate baseline supplement
+        working-directory: build
+        run: >
+          uv run python -m spvs_build validate
+          --supplement ../controls/baseline
+          --schema ../schema/control.schema.json
+
+      - name: Drift check (regenerate baseline CSV and diff)
+        working-directory: build
+        run: >
+          uv run python -m spvs_build check
+          --supplement ../controls/baseline
+          --schema ../schema/control.schema.json
+          --renderer csv-baseline
+          --out ../1.5/OWASP_SPVS_1.0_-en_Requirements.csv
+
+      - name: yamllint controls
+        working-directory: build
+        run: uv run yamllint -c ../.yamllint.yaml ../controls
+
+      # Secret scanning is handled by GitHub native Secret Scanning + Push
+      # Protection (configured at the repo level in Settings -> Code security).
+      # That runs server-side on every push, scans full history, and blocks at
+      # the push step rather than at CI. The local pre-commit gitleaks hook
+      # still runs developer-side as defense-in-depth.

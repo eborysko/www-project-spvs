@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://owasp.org/spvs/schemas/control/v1.json",
+  "title": "SPVS Control",
+  "type": "object",
+  "required": ["id", "category", "sub_category", "description", "level", "mappings", "metadata"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "pattern": "^V[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "category": {
+      "type": "object",
+      "required": ["id", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^V[0-9]+$" },
+        "name": { "type": "string", "minLength": 1 }
+      }
+    },
+    "sub_category": {
+      "type": "object",
+      "required": ["id", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^V[0-9]+\\.[0-9]+$" },
+        "name": { "type": "string", "minLength": 1 }
+      }
+    },
+    "description": { "type": "string" },
+    "level": { "type": "integer", "enum": [1, 2, 3] },
+    "mappings": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["items"],
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "oneOf": [
+                { "type": "string", "minLength": 1 },
+                {
+                  "type": "object",
+                  "required": ["id"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": { "type": "string", "minLength": 1 },
+                    "description": { "type": "string" },
+                    "note": { "type": "string" }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["status"],
+      "additionalProperties": false,
+      "properties": {
+        "status": { "type": "string", "enum": ["active", "deprecated", "moved", "deleted", "deleted_merged_to"] },
+        "change_tags": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["type"],
+            "additionalProperties": false,
+            "properties": {
+              "type": { "type": "string", "enum": ["ADDED", "MODIFIED", "MOVED_FROM", "MOVED_TO", "DELETED", "DELETED_MERGED_TO", "LEVEL_CHANGE", "SPLIT_FROM"] },
+              "reference": { "type": "string" },
+              "from_level": { "type": "integer", "enum": [1, 2, 3] },
+              "to_level": { "type": "integer", "enum": [1, 2, 3] }
+            }
+          }
+        },
+        "introduced_in": { "type": "string" },
+        "last_modified_in": { "type": "string" },
+        "moved_to": { "type": "string" },
+        "owner": { "type": "string" }
+      }
+    },
+    "details": {
+      "$comment": "Reserved future-state slot for long-form authoring content (PDF, MkDocs, AI-readable renderers). Optional; MVP CSV renderer ignores.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "long_description": { "type": "string" },
+        "rationale": { "type": "string" },
+        "implementation_guidance": { "type": "string" },
+        "examples": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "title": { "type": "string" },
+              "content": { "type": "string" }
+            },
+            "required": ["title", "content"]
+          }
+        }
+      }
+    },
+    "references": {
+      "$comment": "Reserved future-state slot for external citations / links. Optional; MVP CSV renderer ignores.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["title", "url"],
+        "properties": {
+          "title": { "type": "string", "minLength": 1 },
+          "url": { "type": "string", "minLength": 1 },
+          "type": {
+            "type": "string",
+            "enum": ["standard", "research", "tool", "blog", "rfc"]
+          }
+        }
+      }
+    },
+    "site": {
+      "$comment": "Reserved future-state slot for site-generator hints (MkDocs, Astro, etc.). Optional; MVP CSV renderer ignores.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "slug": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,59}$" },
+        "feature_image": { "type": "string" },
+        "category_order": { "type": "integer", "minimum": 0 }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "$comment": "Active controls must have non-empty description and at least one framework mapping. Tombstones (status moved/deleted/etc.) may have empty content.",
+      "if": {
+        "type": "object",
+        "required": ["metadata"],
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "required": ["status"],
+            "properties": {
+              "status": { "const": "active" }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "description": { "minLength": 1 },
+          "mappings": { "minProperties": 1 }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+id: V2.3.2
+category:
+  id: V2
+  name: Develop
+sub_category:
+  id: V2.3
+  name: Code Review and Analysis
+description: |-
+  Verify code reviews are conducted where required as per security code review policy
+level: 3
+mappings:
+  nist_800_53:
+    items:
+      - CM-4
+  owasp_cicd:
+    items:
+      - CICD-SEC-1
+  cwe:
+    items:
+      - id: CWE-1053
+        description: Missing Documentation for Design
+      - id: CWE-702
+        description: Insufficient Encapsulation - Code review implementation
+metadata:
+  status: active

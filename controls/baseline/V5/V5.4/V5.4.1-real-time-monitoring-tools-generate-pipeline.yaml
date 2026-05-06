@@ -1,0 +1,25 @@
+id: V5.4.1
+category:
+  id: V5
+  name: Operate
+sub_category:
+  id: V5.4
+  name: Detection & Monitoring
+description: |-
+  Verify that real-time monitoring tools generate pipeline security logs and detect anomalies.
+level: 2
+mappings:
+  nist_800_53:
+    items:
+      - SI-4
+  owasp_cicd:
+    items:
+      - CICD-SEC-10
+  cwe:
+    items:
+      - id: CWE-778
+        description: Insufficient Logging
+      - id: CWE-223
+        description: Omission of Security-relevant Information - Pipeline monitoring
+metadata:
+  status: active

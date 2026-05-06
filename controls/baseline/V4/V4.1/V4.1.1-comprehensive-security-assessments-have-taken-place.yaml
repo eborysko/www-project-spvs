@@ -1,0 +1,25 @@
+id: V4.1.1
+category:
+  id: V4
+  name: Release (CD*)
+sub_category:
+  id: V4.1
+  name: Final Security Assessments
+description: |-
+  Verify that comprehensive security assessments have taken place on the release candidate aligned with security policy
+level: 1
+mappings:
+  nist_800_53:
+    items:
+      - CA-2
+  owasp_cicd:
+    items:
+      - CICD-SEC-10
+  cwe:
+    items:
+      - id: CWE-1069
+        description: Empty Exception Block
+      - id: CWE-710
+        description: Improper Adherence to Coding Standards - Release security assessment
+metadata:
+  status: active

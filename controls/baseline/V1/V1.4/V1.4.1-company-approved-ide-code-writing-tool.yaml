@@ -1,0 +1,23 @@
+id: V1.4.1
+category:
+  id: V1
+  name: Plan
+sub_category:
+  id: V1.4
+  name: Developer Tool Operation
+description: |-
+  Verify a company approved IDE/code writing tool is used and up-to-date
+level: 1
+mappings:
+  nist_800_53:
+    items:
+      - CM-7
+  owasp_cicd:
+    items:
+      - CICD-SEC-4
+  cwe:
+    items:
+      - id: CWE-1104
+        description: Use of Unmaintained Third Party Components - Outdated development tools
+metadata:
+  status: active

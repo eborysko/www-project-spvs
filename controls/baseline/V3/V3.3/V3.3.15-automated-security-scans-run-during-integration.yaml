@@ -1,0 +1,25 @@
+id: V3.3.15
+category:
+  id: V3
+  name: Integrate (CI*)
+sub_category:
+  id: V3.3
+  name: Continuous Security Checks
+description: |-
+  Verify that automated security scans are run during the integration of new code
+level: 2
+mappings:
+  nist_800_53:
+    items:
+      - SI-4
+  owasp_cicd:
+    items:
+      - CICD-SEC-4
+  cwe:
+    items:
+      - id: CWE-1069
+        description: Empty Exception Block
+      - id: CWE-1041
+        description: Use of Redundant Code - Integration security scanning
+metadata:
+  status: active

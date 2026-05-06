@@ -1,0 +1,25 @@
+id: V3.3.18
+category:
+  id: V3
+  name: Integrate (CI*)
+sub_category:
+  id: V3.3
+  name: Continuous Security Checks
+description: |-
+  Verify that branch protection rules are enforced on all repositories
+level: 3
+mappings:
+  nist_800_53:
+    items:
+      - AC-3
+  owasp_cicd:
+    items:
+      - CICD-SEC-1
+  cwe:
+    items:
+      - id: CWE-284
+        description: Improper Access Control
+      - id: CWE-732
+        description: Incorrect Permission Assignment for Critical Resource - Branch protection
+metadata:
+  status: active

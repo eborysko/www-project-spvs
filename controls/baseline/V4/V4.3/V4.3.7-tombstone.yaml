@@ -1,0 +1,12 @@
+id: V4.3.7
+category:
+  id: V4
+  name: Release (CD*)
+sub_category:
+  id: V4.3
+  name: Secure Deployment Practices
+description: ""
+level: 1
+mappings: {}
+metadata:
+  status: deleted

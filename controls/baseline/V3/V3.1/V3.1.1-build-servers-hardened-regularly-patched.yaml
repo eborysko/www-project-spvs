@@ -1,0 +1,25 @@
+id: V3.1.1
+category:
+  id: V3
+  name: Integrate (CI*)
+sub_category:
+  id: V3.1
+  name: Security of Pipeline Environment
+description: |-
+  Verify that build servers are hardened and regularly patched
+level: 1
+mappings:
+  nist_800_53:
+    items:
+      - SI-2
+  owasp_cicd:
+    items:
+      - CICD-SEC-2
+  cwe:
+    items:
+      - id: CWE-1104
+        description: Use of Unmaintained Third Party Components
+      - id: CWE-16
+        description: Configuration - Build server security
+metadata:
+  status: active

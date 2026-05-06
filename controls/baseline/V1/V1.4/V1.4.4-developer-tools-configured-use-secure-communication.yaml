@@ -1,0 +1,23 @@
+id: V1.4.4
+category:
+  id: V1
+  name: Plan
+sub_category:
+  id: V1.4
+  name: Developer Tool Operation
+description: |-
+  Verify that developer tools are configured to use secure communication protocols (e.g. HTTPS)
+level: 2
+mappings:
+  nist_800_53:
+    items:
+      - SC-13
+  owasp_cicd:
+    items:
+      - CICD-SEC-7
+  cwe:
+    items:
+      - id: CWE-319
+        description: Cleartext Transmission of Sensitive Information - Insecure communication channels
+metadata:
+  status: active

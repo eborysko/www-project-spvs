@@ -1,0 +1,23 @@
+id: V1.4.5
+category:
+  id: V1
+  name: Plan
+sub_category:
+  id: V1.4
+  name: Developer Tool Operation
+description: |-
+  Verify that developer tools are monitored for unauthorized changes or usage
+level: 2
+mappings:
+  nist_800_53:
+    items:
+      - SI-4
+  owasp_cicd:
+    items:
+      - CICD-SEC-10
+  cwe:
+    items:
+      - id: CWE-693
+        description: Protection Mechanism Failure - Lack of monitoring for security controls
+metadata:
+  status: active

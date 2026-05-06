@@ -1,0 +1,25 @@
+id: V3.1.5
+category:
+  id: V3
+  name: Integrate (CI*)
+sub_category:
+  id: V3.1
+  name: Security of Pipeline Environment
+description: |-
+  Verify that build systems are regularly reviewed for security misconfigurations
+level: 3
+mappings:
+  nist_800_53:
+    items:
+      - CA-7
+  owasp_cicd:
+    items:
+      - CICD-SEC-4
+  cwe:
+    items:
+      - id: CWE-16
+        description: Configuration
+      - id: CWE-669
+        description: Incorrect Resource Transfer Between Spheres - Build system configuration
+metadata:
+  status: active

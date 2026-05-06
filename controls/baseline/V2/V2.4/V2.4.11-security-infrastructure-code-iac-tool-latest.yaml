@@ -1,0 +1,23 @@
+id: V2.4.11
+category:
+  id: V2
+  name: Develop
+sub_category:
+  id: V2.4
+  name: Perform Security Checks
+description: |-
+  Verify security Infrastructure as Code (IaC) tool is on the latest version
+level: 2
+mappings:
+  nist_800_53:
+    items:
+      - SI-2
+  owasp_cicd:
+    items:
+      - CICD-SEC-7
+  cwe:
+    items:
+      - id: CWE-1104
+        description: Use of Unmaintained Third Party Components - IaC tool maintenance
+metadata:
+  status: active

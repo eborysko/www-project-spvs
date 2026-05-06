@@ -1,0 +1,25 @@
+id: V5.2.2
+category:
+  id: V5
+  name: Operate
+sub_category:
+  id: V5.2
+  name: Security Standard Enforcement
+description: |-
+  Verify that operational practices are regularly reviewed to ensure they do not compromise security
+level: 3
+mappings:
+  nist_800_53:
+    items:
+      - CA-7
+  owasp_cicd:
+    items:
+      - CICD-SEC-7
+  cwe:
+    items:
+      - id: CWE-1008
+        description: Architectural Concepts
+      - id: CWE-710
+        description: Improper Adherence to Coding Standards - Operational security review
+metadata:
+  status: active

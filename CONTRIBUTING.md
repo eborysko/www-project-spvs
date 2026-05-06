@@ -14,16 +14,53 @@ Thank you for your interest in contributing to SPVS. We welcome all contribution
 
 1. Fork this repository and create a branch named descriptively (e.g., `add-sbom-verification-control`, `fix-v1.1.3-nist-mapping`).
 
-2. Add your proposed control(s) to `1.0/OWASP_SPVS_1.0_-en_Requirements.csv`. Keep the column order and formatting consistent with existing rows. If you're unsure of the category, pick the closest one and note it in your PR.
+2. Add your proposed control(s) as a new YAML file under
+   `controls/baseline/V<cat>/V<sub>/V<id>-<short-slug>.yaml`. Use an
+   adjacent control as a template. The slug is a short kebab-case
+   description, max 60 characters, action-first when possible
+   (e.g. `verify-mfa-enabled`).
 
-3. Open a pull request against the `main` branch. For new controls, your description should address:
+   The CSV at `1.5/OWASP_SPVS_1.0_-en_Requirements.csv` is **generated
+   from the YAML** by the build pipeline. Do not edit the CSV directly —
+   the CI drift check will reject any PR where the committed CSV does
+   not match what the YAML produces.
+
+   For new controls, the YAML's `description` field is the verification
+   statement, `level` is 1 / 2 / 3, and `mappings` carries the
+   compliance framework references. See [`build/README.md`](build/README.md)
+   for the full schema and toolchain documentation.
+
+3. Regenerate the CSV before pushing:
+
+   ```sh
+   cd build && make build-baseline
+   ```
+
+   Then `git add 1.5/OWASP_SPVS_1.0_-en_Requirements.csv` alongside your
+   YAML changes.
+
+4. (Recommended) Install the local pre-commit hooks for fast feedback:
+
+   ```sh
+   cd build && make install
+   ```
+
+   The hooks run schema validation, regenerate the CSV, run yamllint,
+   ruff/mypy on the build toolchain, gitleaks for secrets, and validate
+   Conventional Commits format on the commit message. CI runs the same
+   checks regardless — pre-commit is opt-in but catches issues before
+   you push.
+
+5. Open a pull request against the `main` branch. CI runs the full
+   build/validate/drift-check sequence; merging requires a green check.
+   For new controls, your PR description should address:
    - What the control verifies
    - Which pipeline phase it belongs to and why
    - The threat or risk it addresses (OWASP CICD Top 10 reference preferred)
    - Suggested level (1 = baseline, 2 = standard, 3 = advanced) with rationale
    - NIST 800-53, OWASP CICD Risk, and CWE mappings (best effort is fine)
 
-4. If you're proposing something that doesn't fit cleanly into an existing category, say so in the PR. That's useful signal for the maintainers.
+6. If you're proposing something that doesn't fit cleanly into an existing category, say so in the PR. That's useful signal for the maintainers.
 
 ### Numbering Rules
 
@@ -32,25 +69,64 @@ Thank you for your interest in contributing to SPVS. We welcome all contribution
 
 ### Change Tags
 
-Add the appropriate tag before the requirement description when modifying existing controls:
+In the YAML model, change tags are structured metadata fields, not bracketed
+prefixes on the description. When modifying or moving an existing control, add
+entries to the `metadata.change_tags` list — the description text stays clean.
 
-- `[ADDED]` - New requirement (end of sub-category only)
-- `[ADDED, SPLIT FROM x.y.z]` - New requirement split from an existing one
-- `[MODIFIED]` - Requirement description has changed
-- `[MOVED FROM x.y.z]` - Requirement moved to a different sub-category, not modified
-- `[MODIFIED, MOVED FROM x.y.z]` - Requirement modified and moved
-- `[MOVED TO x.y.z]` - Placeholder; requirement moved to another category
-- `[DELETED]` - Placeholder; requirement removed
-- `[DELETED, MERGED TO x.y.z]` - Placeholder; requirement merged into another
-- `[LEVEL L1 > L2]` - Requirement level has changed
+Allowed `type` values: `ADDED`, `MODIFIED`, `MOVED_FROM`, `MOVED_TO`,
+`DELETED`, `DELETED_MERGED_TO`, `LEVEL_CHANGE`, `SPLIT_FROM`.
 
-CWE and NIST mapping changes do not require tags.
+Compound changes use multiple list entries. The CSV rendering reflects these
+back into the prefix format consumers expect.
+
+```yaml
+metadata:
+  status: active
+  change_tags:
+    - type: MODIFIED
+    - type: MOVED_FROM
+      reference: V1.1.7
+```
+
+For deleted/moved controls, the YAML file is removed (or its `metadata.status`
+is set to `moved` / `deleted` / `deleted_merged_to`); the build pipeline does
+not require a placeholder row to reserve the deleted id.
+
+CWE and NIST mapping changes do not require change_tags entries.
 
 ### Example: New Control Submission
 
-**CSV row being added:**
-```
-V3,Integrate (CI*),V3.4,Integrity of Artifacts,V3.4.3,Verify that a Software Bill of Materials (SBOM) is generated and stored as a signed pipeline artifact on every build,,,X,NIST 800-53: SA-12,CICD-SEC-3,CWE-1104;CWE-345,Use of Unmaintained Third Party Components;Insufficient Verification of Data Authenticity - SBOM integrity
+**YAML file being added** at `controls/baseline/V3/V3.4/V3.4.3-sbom-generated-signed.yaml`:
+
+```yaml
+id: V3.4.3
+category:
+  id: V3
+  name: Integrate (CI*)
+sub_category:
+  id: V3.4
+  name: Integrity of Artifacts
+description: >
+  Verify that a Software Bill of Materials (SBOM) is generated and stored
+  as a signed pipeline artifact on every build.
+level: 3
+mappings:
+  nist_800_53:
+    items:
+      - SA-12
+  owasp_cicd:
+    items:
+      - CICD-SEC-3
+  cwe:
+    items:
+      - id: CWE-1104
+        description: Use of Unmaintained Third Party Components
+      - id: CWE-345
+        description: Insufficient Verification of Data Authenticity - SBOM integrity
+metadata:
+  status: active
+  change_tags:
+    - type: ADDED
 ```
 
 **PR description:**

@@ -1,0 +1,23 @@
+id: V1.2.5
+category:
+  id: V1
+  name: Plan
+sub_category:
+  id: V1.2
+  name: Hardening User Machines
+description: |-
+  Verify that developer machines are configured to lock automatically after a period of inactivity
+level: 3
+mappings:
+  nist_800_53:
+    items:
+      - AC-11
+  owasp_cicd:
+    items:
+      - CICD-SEC-4
+  cwe:
+    items:
+      - id: CWE-613
+        description: Insufficient Session Expiration - Failure to terminate inactive sessions
+metadata:
+  status: active

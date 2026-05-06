@@ -1,0 +1,23 @@
+id: V5.3.1
+category:
+  id: V5
+  name: Operate
+sub_category:
+  id: V5.3
+  name: Secure Maintenance Practices
+description: |-
+  Verify that patches and updates are applied in a timely manner
+level: 1
+mappings:
+  nist_800_53:
+    items:
+      - SI-2
+  owasp_cicd:
+    items:
+      - CICD-SEC-2
+  cwe:
+    items:
+      - id: CWE-1104
+        description: Use of Unmaintained Third Party Components - Patch management
+metadata:
+  status: active

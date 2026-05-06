@@ -1,0 +1,26 @@
+id: V1.5.2
+category:
+  id: V1
+  name: Plan
+sub_category:
+  id: V1.5
+  name: Source Code Management Hardening
+description: |-
+  Verify a .gitignore file is present to prevent commit of possible sensitive data or files
+level: 1
+mappings:
+  nist_800_53:
+    items:
+      - SC-28
+      - SI-19
+  owasp_cicd:
+    items:
+      - CICD-SEC-6
+  cwe:
+    items:
+      - id: CWE-200
+        description: Exposure of Sensitive Information
+      - id: CWE-312
+        description: Cleartext Storage of Sensitive Information - Preventing sensitive data exposure
+metadata:
+  status: active

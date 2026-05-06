@@ -1,0 +1,24 @@
+id: V1.2.3
+category:
+  id: V1
+  name: Plan
+sub_category:
+  id: V1.2
+  name: Hardening User Machines
+description: |-
+  Verify Full Disk encryption is setup and enabled on developer laptops
+level: 1
+mappings:
+  nist_800_53:
+    items:
+      - SC-28
+      - SC-12
+  owasp_cicd:
+    items:
+      - CICD-SEC-4
+  cwe:
+    items:
+      - id: CWE-311
+        description: Missing Encryption of Sensitive Data - Lack of data protection at rest
+metadata:
+  status: active

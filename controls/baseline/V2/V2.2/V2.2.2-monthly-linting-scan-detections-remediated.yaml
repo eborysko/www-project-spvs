@@ -1,0 +1,25 @@
+id: V2.2.2
+category:
+  id: V2
+  name: Develop
+sub_category:
+  id: V2.2
+  name: Software Quality
+description: |-
+  Verify monthly Linting scan detections are remediated
+level: 1
+mappings:
+  nist_800_53:
+    items:
+      - SI-2
+  owasp_cicd:
+    items:
+      - CICD-SEC-4
+  cwe:
+    items:
+      - id: CWE-398
+        description: Indicator of Poor Code Quality
+      - id: CWE-1041
+        description: Use of Redundant Code - Code quality remediation
+metadata:
+  status: active

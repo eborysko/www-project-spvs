@@ -1,0 +1,25 @@
+id: V2.2.5
+category:
+  id: V2
+  name: Develop
+sub_category:
+  id: V2.2
+  name: Software Quality
+description: |-
+  Verify that unit tests cover security-related code paths
+level: 2
+mappings:
+  nist_800_53:
+    items:
+      - SA-11
+  owasp_cicd:
+    items:
+      - CICD-SEC-4
+  cwe:
+    items:
+      - id: CWE-1041
+        description: Use of Redundant Code
+      - id: CWE-358
+        description: Improperly Implemented Security Check - Security testing coverage
+metadata:
+  status: active

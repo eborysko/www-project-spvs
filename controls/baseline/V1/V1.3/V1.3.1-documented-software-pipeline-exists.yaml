@@ -1,0 +1,23 @@
+id: V1.3.1
+category:
+  id: V1
+  name: Plan
+sub_category:
+  id: V1.3
+  name: Security Requirements and Risk Assessment
+description: |-
+  Verify a documented software pipeline exists
+level: 1
+mappings:
+  nist_800_53:
+    items:
+      - PL-1
+  owasp_cicd:
+    items:
+      - CICD-SEC-4
+  cwe:
+    items:
+      - id: CWE-1053
+        description: Missing Documentation for Design
+metadata:
+  status: active

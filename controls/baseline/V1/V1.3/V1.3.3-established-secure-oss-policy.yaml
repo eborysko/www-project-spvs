@@ -1,0 +1,23 @@
+id: V1.3.3
+category:
+  id: V1
+  name: Plan
+sub_category:
+  id: V1.3
+  name: Security Requirements and Risk Assessment
+description: |-
+  Verify established Secure OSS policy
+level: 2
+mappings:
+  nist_800_53:
+    items:
+      - SA-12
+  owasp_cicd:
+    items:
+      - CICD-SEC-3
+  cwe:
+    items:
+      - id: CWE-1104
+        description: Use of Unmaintained Third Party Components - Lack of third-party software management
+metadata:
+  status: active

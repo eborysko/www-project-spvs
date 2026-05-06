@@ -1,0 +1,23 @@
+id: V1.4.2
+category:
+  id: V1
+  name: Plan
+sub_category:
+  id: V1.4
+  name: Developer Tool Operation
+description: |-
+  Verify IDE/code writing tool Plugin/s meet company policy and are approved
+level: 1
+mappings:
+  nist_800_53:
+    items:
+      - CM-7(5)
+  owasp_cicd:
+    items:
+      - CICD-SEC-4
+  cwe:
+    items:
+      - id: CWE-1195
+        description: Manufacturing or Development Artifact in Released Binary - Unapproved development components
+metadata:
+  status: active

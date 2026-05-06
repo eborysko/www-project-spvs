@@ -1,0 +1,25 @@
+id: V2.4.15
+category:
+  id: V2
+  name: Develop
+sub_category:
+  id: V2.4
+  name: Perform Security Checks
+description: |-
+  Verify that third-party libraries are updated promptly when security patches are released
+level: 2
+mappings:
+  nist_800_53:
+    items:
+      - SI-2
+  owasp_cicd:
+    items:
+      - CICD-SEC-3
+  cwe:
+    items:
+      - id: CWE-1104
+        description: Use of Unmaintained Third Party Components
+      - id: CWE-937
+        description: OWASP Top Ten 2013 Category A9 - Using Components with Known Vulnerabilities - Dependency updates
+metadata:
+  status: active

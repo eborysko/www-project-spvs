@@ -1,0 +1,23 @@
+id: V1.1.4
+category:
+  id: V1
+  name: Plan
+sub_category:
+  id: V1.1
+  name: Identity and Access Management
+description: |-
+  Verify that stale identities are disabled or removed after a predetermined period of inactivity
+level: 3
+mappings:
+  nist_800_53:
+    items:
+      - AC-2(3)
+  owasp_cicd:
+    items:
+      - CICD-SEC-2
+  cwe:
+    items:
+      - id: CWE-287
+        description: Improper Authentication - Failure to manage authentication lifecycle
+metadata:
+  status: active

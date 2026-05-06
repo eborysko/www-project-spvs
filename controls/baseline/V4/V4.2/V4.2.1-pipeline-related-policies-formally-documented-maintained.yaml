@@ -1,0 +1,25 @@
+id: V4.2.1
+category:
+  id: V4
+  name: Release (CD*)
+sub_category:
+  id: V4.2
+  name: Compliance Checks
+description: |-
+  Verify that pipeline-related policies are formally documented, maintained as compliance artifacts, and reviewed periodically for accuracy and relevance.
+level: 1
+mappings:
+  nist_800_53:
+    items:
+      - CA-7
+  owasp_cicd:
+    items:
+      - CICD-SEC-1
+  cwe:
+    items:
+      - id: CWE-1059
+        description: Incomplete Documentation
+      - id: CWE-1053
+        description: Missing Documentation for Design - Compliance documentation
+metadata:
+  status: active
