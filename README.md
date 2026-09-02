@@ -1,5 +1,12 @@
-![alt text](assets/images/SPVS_Logo.png)
-## Project - Secure Pipeline Verification Standard (SPVS)
+![SPVS Logo](assets/images/SPVS_Logo.png)
+
+# Secure Pipeline Verification Standard (SPVS)
+
+[![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg)](LICENSE.md)
+[![Slack](https://img.shields.io/badge/Slack-%23owasp--spvs-blue?logo=slack)](https://owasp.slack.com/archives/C0AQW879656)
+[![Last Commit](https://img.shields.io/github/last-commit/OWASP/www-project-spvs)](https://github.com/OWASP/www-project-spvs/commits/main)
+[![Contributions Welcome](https://img.shields.io/badge/Contributions-Welcome-brightgreen.svg)](CONTRIBUTING.md)
+
 ---
 
 ## **SPVS**
@@ -14,6 +21,7 @@ By embedding security at every phase and continuously validating controls, SPVS 
 
 - [SPVS Official OWASP Web Page](https://owasp.org/www-project-spvs/)
 - [Join us on Slack @ #owasp-spvs](https://owasp.slack.com/archives/C0AQW879656)
+- Found a bug or have an idea? [Log an issue](https://github.com/OWASP/www-project-spvs/issues) or [open a Pull Request](https://github.com/OWASP/www-project-spvs/pulls)
 
 Why was the SPVS so calm during an incident? -> It had multi-factor resilience.
 
@@ -21,13 +29,42 @@ Why did the CI job take a coffee break? -> Too many Java exceptions!
 
 ---
 
-# Check out SPVS 1.5!
-- [Release 1.5 - AI Security - Community Feedback](/1.5/Release_Notes_OWASP_SPVS_1.5-AI-Pipeline-Security.md)
-- [How To Use SPVS](/1.5/OWASP_SPVS_1.0_How_To_Use_SPVS.md)
-- [Check out 1.0 Controls/Requirements](/1.5/OWASP_SPVS_1.0_-en_Requirements.csv)
-- [Check out Legend and Columns Overview](/1.5/OWASP_SPVS_1.0_Categories_Overview.md)
-- [How to Contribute to the SPVS](/CONTRIBUTING.md)
-- [How to Join the SPVS Team](/JOINING_THE_TEAM.md)
+## Table of Contents
+
+- [Getting Started](#check-out-spvs-16)
+- [How To Reference SPVS Requirements](#how-to-reference-spvs-requirements)
+- [Goal](#goal)
+- [Key Aspects of the SPVS Guide](#key-aspects-of-the-spvs-guide)
+- [Scope](#scope)
+- [Audience](#audience)
+- [Principles](#principles)
+- [SPVS Stages](#spvs-stages)
+- [Contributing](CONTRIBUTING.md)
+- [License](#license)
+- [Contact](#contact)
+
+---
+
+# Check out SPVS 1.6!
+- [Release 1.6 - Community Feedback](1.6/Release_Notes_OWASP_SPVS_1.6.md)
+- [Release 1.5 - AI Security - Community Feedback](1.6/Release_Notes_OWASP_SPVS_1.5-AI-Pipeline-Security.md)
+- [How To Use SPVS](1.6/OWASP_SPVS_1.0_How_To_Use_SPVS.md)
+- [Check out Controls/Requirements](1.6/)
+- [Check out Legend and Columns Overview](1.6/OWASP_SPVS_1.0_Categories_Overview.md)
+- [How to Contribute to the SPVS](CONTRIBUTING.md)
+- [How to Join the SPVS Team](JOINING_THE_TEAM.md)
+
+---
+
+## How To Reference SPVS Requirements
+
+Each requirement has an identifier in the format `<category>.<sub-category>.<requirement>`, where `category` and `sub-category` correspond to the `category_id` and `sub-category_id` columns in the requirements CSV, and `requirement` is the `req_id`. For example, `V1.1.1`:
+
+* The `V1` category corresponds to the **Plan** stage.
+* The `V1.1` sub-category corresponds to **Identity and Access Management** within that stage.
+* The `V1.1.1` requirement identifies the specific control: *"Verify that accounts used to publish packages require phishing-resistant multi-factor authentication, and that this requirement applies separately to each package."*
+
+Since identifiers may change between versions of the standard, when citing a requirement in another document, report, or tool, prefix it with the SPVS version, e.g. `v1.6-V1.1.1`, so the reference remains unambiguous as SPVS evolves.
 
 ---
 
@@ -213,6 +250,48 @@ Maintain and protect production environments.
 ---
 
 Why did the SPVS framework start a band? -> It already had great stages!
+
+---
+
+## How SPVS Releases Work
+
+SPVS ships two kinds of releases, and knowing the difference tells you how to read each one and how to get involved.
+
+### Official releases
+
+Official releases (1.0, and 2.0 coming autumn 2026) are the consolidated standard: the full control set across all five stages (Plan, Develop, Integrate, Release, and Operate), reviewed, numbered, and stable enough to build a program against. When you adopt SPVS or cite it in an assessment, you cite an official release.
+
+### Community feedback releases
+
+Community feedback releases (1.5 AI Pipeline Security, 1.6 Supply Chain Attack Response) are focused control sets published between official releases, each responding to a specific shift in the threat landscape. They ship early and in the open, on purpose:
+
+- **They are demand-driven.** Each one is built from real incidents, changes in ecosystem, and events. E.g. Every control in 1.6 carries an incident anchor.
+- **They are drafts by design.** The wording, scope, and levels are open to challenge. Community review happens before the controls join the standard, not after.
+- **They roll up.** Controls that survive community review are consolidated into the next official release. Feedback on 1.5 and 1.6 is shaping SPVS 2.0 right now; submissions for 2.0 are due by October 1, 2026. The scope of the 1.7 community release (September 2026) is also being set now, and proposals for what it should cover are welcome.
+
+If a control seems wrong, too heavy, untestable, or missing, that reaction is the input we published for.
+
+### How to contribute a verification
+
+The fastest way to influence the standard is to bring us the attack classes you have actually defended against and the verifications you would want every team to run.
+
+1. **Open an issue** when a control misses a technique, bundles too much into one line, or cannot be tested as written. Reference the control ID (for example, V3.4.7).
+2. **Open a pull request** to propose a new verification or a rewording. See [CONTRIBUTING.md](CONTRIBUTING.md) for the control format and PR conventions.
+3. **Join the discussion** in [#owasp-spvs](https://owasp.slack.com/archives/C0AQW879656) on OWASP Slack, where proposed controls get debated before they land.
+
+Community-contributed verifications are reviewed by the project leads and, when accepted, carry into the next release with the contributor credited. Your incident experience is the raw material this standard is made from.
+
+## License
+
+SPVS is licensed under [Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)](LICENSE.md).
+
+---
+
+## Contact
+
+- **Project Leaders:** see [leaders.md](leaders.md)
+- **Report a security issue:** see [SECURITY.md](SECURITY.md)
+- **Community discussion:** [Join us on Slack @ #owasp-spvs](https://owasp.slack.com/archives/C0AQW879656)
 
 ---
 ## Code of Conduct
